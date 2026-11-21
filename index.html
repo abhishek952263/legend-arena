@@ -1,0 +1,3328 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Legend Arena • MOBA &amp; Open World</title>
+  <meta name="theme-color" content="#070b18" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <style>
+    :root {
+      --bg: #060913;
+      --panel: #0f172a;
+      --panel-2: #162036;
+      --border: rgba(148, 163, 184, 0.2);
+      --gold: #facc15;
+      --gold-2: #f59e0b;
+      --cyan: #38bdf8;
+      --blue: #2563eb;
+      --green: #10b981;
+      --red: #ef4444;
+      --purple: #a855f7;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Devanagari", Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    /* ================= LOBBY SCREEN ================= */
+    #lobbyScreen {
+      position: fixed;
+      inset: 0;
+      overflow-y: auto;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(37, 99, 235, 0.28), transparent 44%),
+        radial-gradient(circle at 86% 18%, rgba(245, 158, 11, 0.2), transparent 42%),
+        linear-gradient(180deg, #060913 0%, #0b1224 100%);
+      padding-bottom: calc(28px + env(safe-area-inset-bottom));
+      z-index: 20;
+    }
+
+    .lobby-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: calc(12px + env(safe-area-inset-top)) 14px 20px;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 12px;
+      backdrop-filter: blur(8px);
+      margin-bottom: 12px;
+    }
+
+    .profile-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .rank-emblem {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+      border: 2px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      box-shadow: 0 0 14px rgba(250, 204, 21, 0.35);
+    }
+
+    .profile-meta {
+      min-width: 0;
+    }
+
+    .profile-name {
+      font-size: 14.5px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tier-badge {
+      font-size: 10px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .tier-free { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.35); }
+    .tier-pro { background: linear-gradient(90deg, #f59e0b, #facc15); color: #1e1b02; }
+    .tier-owner { background: linear-gradient(90deg, #a855f7, #ec4899, #facc15); color: #ffffff; }
+
+    .profile-stats {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 2px;
+      font-weight: 700;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill-btn {
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .pill-btn.gold {
+      background: linear-gradient(135deg, #f59e0b, #facc15);
+      color: #0f172a;
+      border: none;
+      box-shadow: 0 3px 12px rgba(245, 158, 11, 0.35);
+    }
+
+    /* Install Banner */
+    .install-bar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: linear-gradient(135deg, #065f46, #047857);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      border-radius: 14px;
+      padding: 10px 13px;
+      margin-bottom: 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+    .install-bar.show { display: flex; }
+    .install-bar button {
+      background: #ffffff;
+      color: #065f46;
+      border: none;
+      padding: 7px 13px;
+      border-radius: 9px;
+      font-weight: 900;
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+
+    /* Hero Title Banner */
+    .game-hero-header {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .game-logo {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #38bdf8, #facc15, #f97316);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0;
+    }
+    .game-sub {
+      font-size: 12px;
+      color: #cbd5e1;
+      margin-top: 3px;
+      font-weight: 700;
+    }
+
+    /* Section Card */
+    .section-card {
+      background: rgba(15, 23, 42, 0.86);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 13px;
+      margin-bottom: 12px;
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+
+    .sec-title {
+      font-size: 14.5px;
+      font-weight: 900;
+      color: var(--gold);
+      margin: 0;
+      letter-spacing: 0.3px;
+    }
+
+    .sec-hint {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    /* Hero Selector Grid */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    @media (min-width: 600px) {
+      .hero-grid { grid-template-columns: repeat(6, 1fr); }
+    }
+
+    .hero-card {
+      position: relative;
+      background: var(--panel-2);
+      border: 1.5px solid var(--border);
+      border-radius: 13px;
+      padding: 9px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.14s, border-color 0.14s;
+    }
+
+    .hero-card.selected {
+      border-color: var(--gold);
+      background: linear-gradient(180deg, rgba(37, 99, 235, 0.3), rgba(15, 23, 42, 0.95));
+      box-shadow: 0 0 14px rgba(250, 204, 21, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .hero-card.locked {
+      opacity: 0.78;
+    }
+
+    .hero-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      margin: 0 auto 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      border: 2px solid rgba(255, 255, 255, 0.28);
+    }
+
+    .hero-name {
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hero-role {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .pro-tag {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: linear-gradient(135deg, #f59e0b, #facc15);
+      color: #0f172a;
+      font-size: 8.5px;
+      font-weight: 900;
+      padding: 2px 5px;
+      border-radius: 6px;
+    }
+
+    .hero-detail-box {
+      margin-top: 10px;
+      background: rgba(6, 9, 19, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .stat-bars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 7px;
+    }
+
+    .sbar-lbl { font-size: 10px; font-weight: 800; color: var(--muted); margin-bottom: 3px; }
+    .sbar-track { height: 6px; background: #1e293b; border-radius: 99px; overflow: hidden; }
+    .sbar-fill { height: 100%; border-radius: 99px; }
+
+    /* Mode Buttons Grid */
+    .modes-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 9px;
+    }
+
+    @media (min-width: 560px) {
+      .modes-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .mode-card {
+      background: linear-gradient(145deg, #13203d, #0d1528);
+      border: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-radius: 14px;
+      padding: 13px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 6px;
+      text-align: left;
+      color: var(--text);
+    }
+
+    .mode-card.world { border-color: rgba(16, 185, 129, 0.45); background: linear-gradient(145deg, #0b2922, #0b1626); }
+    .mode-card.multi { border-color: rgba(168, 85, 247, 0.5); background: linear-gradient(145deg, #25123d, #0d1528); }
+    .mode-card:active { transform: scale(0.985); }
+
+    .mode-title { font-size: 15px; font-weight: 900; }
+    .mode-desc { font-size: 11.5px; color: #cbd5e1; line-height: 1.35; }
+    .mode-cta {
+      margin-top: 4px;
+      display: inline-block;
+      font-size: 11.5px;
+      font-weight: 900;
+      color: var(--gold);
+    }
+
+    /* Stage Selector Grid */
+    .stage-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .stage-btn {
+      background: var(--panel-2);
+      border: 1.5px solid var(--border);
+      border-radius: 11px;
+      padding: 8px 4px;
+      color: var(--text);
+      text-align: center;
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 12px;
+    }
+
+    .stage-btn.selected {
+      border-color: var(--gold);
+      background: rgba(250, 204, 21, 0.16);
+      color: var(--gold);
+    }
+
+    .stage-btn.locked {
+      opacity: 0.48;
+    }
+
+    .stage-stars {
+      font-size: 9px;
+      margin-top: 2px;
+      color: var(--gold);
+    }
+
+    .big-play-btn {
+      width: 100%;
+      margin-top: 11px;
+      padding: 14px;
+      border: none;
+      border-radius: 13px;
+      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 5px 18px rgba(37, 99, 235, 0.45);
+    }
+
+    /* ================= GAMEPLAY SCREEN ================= */
+    #gameScreen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #050811;
+      z-index: 30;
+      touch-action: none;
+      overflow: hidden;
+    }
+
+    #gameScreen.active { display: block; }
+
+    #gameCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    /* Top HUD */
+    .hud-top {
+      position: fixed;
+      top: calc(8px + env(safe-area-inset-top));
+      left: 10px;
+      right: 10px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 40;
+      gap: 8px;
+    }
+
+    .hud-score-pill {
+      pointer-events: auto;
+      background: rgba(7, 11, 24, 0.82);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 12px;
+      padding: 6px 11px;
+      font-size: 12px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(4px);
+    }
+
+    .hud-blue { color: #38bdf8; }
+    .hud-red { color: #f87171; }
+    .hud-gold { color: #facc15; }
+
+    /* Pro Radar Live Strip */
+    .radar-hud-strip {
+      position: fixed;
+      top: calc(48px + env(safe-area-inset-top));
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(6, 20, 34, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.55);
+      border-radius: 999px;
+      padding: 5px 13px;
+      font-size: 11.5px;
+      font-weight: 900;
+      color: #67e8f9;
+      z-index: 40;
+      pointer-events: none;
+      white-space: nowrap;
+      display: none;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
+    }
+    .radar-hud-strip.show { display: block; }
+
+    /* Announcement Banner */
+    .announce-banner {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.94) 20%, rgba(15, 23, 42, 0.94) 80%, transparent);
+      border-top: 2px solid var(--gold);
+      border-bottom: 2px solid var(--gold);
+      padding: 10px 36px;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--gold);
+      text-shadow: 0 2px 12px rgba(250, 204, 21, 0.65);
+      letter-spacing: 1px;
+      z-index: 50;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.25s;
+      white-space: nowrap;
+    }
+    .announce-banner.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .hud-top-right {
+      display: flex;
+      gap: 6px;
+      pointer-events: auto;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .hud-mini-btn {
+      background: rgba(7, 11, 24, 0.84);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 6px 9px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .hud-mini-btn.radar-on {
+      border-color: #38bdf8;
+      color: #67e8f9;
+      background: rgba(8, 47, 73, 0.9);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+    .hud-mini-btn.shop-ready {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* Open World Sandbox Quick Bar */
+    .sandbox-bar {
+      display: none;
+      position: fixed;
+      left: 10px;
+      top: calc(52px + env(safe-area-inset-top));
+      flex-direction: column;
+      gap: 6px;
+      z-index: 42;
+      pointer-events: auto;
+    }
+    .sandbox-bar.show { display: flex; }
+
+    .sb-btn {
+      background: rgba(7, 11, 24, 0.85);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #ecfdf5;
+      border-radius: 10px;
+      padding: 6px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: left;
+    }
+    .sb-btn.pro-sb {
+      border-color: rgba(250, 204, 21, 0.65);
+      color: #fef08a;
+    }
+
+    /* Bottom Touch Skill Controls (Right Side - MOBA Layout) */
+    .skill-cluster {
+      position: fixed;
+      right: calc(14px + env(safe-area-inset-right));
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      width: 214px;
+      height: 205px;
+      z-index: 45;
+      pointer-events: none;
+    }
+
+    .ctrl-btn {
+      position: absolute;
+      border-radius: 50%;
+      border: 2.5px solid rgba(255, 255, 255, 0.55);
+      color: #ffffff;
+      font-weight: 900;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      pointer-events: auto;
+      touch-action: none;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
+      overflow: hidden;
+    }
+
+    .ctrl-btn:active { transform: scale(0.92); }
+
+    .btn-atk {
+      right: 4px;
+      bottom: 4px;
+      width: 78px;
+      height: 78px;
+      background: radial-gradient(circle at 35% 30%, #fbbf24, #b45309);
+      border-color: #fef08a;
+      font-size: 24px;
+    }
+
+    .btn-s1 {
+      right: 92px;
+      bottom: 8px;
+      width: 58px;
+      height: 58px;
+      background: radial-gradient(circle at 35% 30%, #38bdf8, #1d4ed8);
+      font-size: 18px;
+    }
+
+    .btn-s2 {
+      right: 78px;
+      bottom: 76px;
+      width: 58px;
+      height: 58px;
+      background: radial-gradient(circle at 35% 30%, #c084fc, #7e22ce);
+      font-size: 18px;
+    }
+
+    .btn-ult {
+      right: 12px;
+      bottom: 98px;
+      width: 64px;
+      height: 64px;
+      background: radial-gradient(circle at 35% 30%, #fb7185, #be123c);
+      border-color: #facc15;
+      font-size: 20px;
+    }
+
+    .btn-heal {
+      right: 158px;
+      bottom: 14px;
+      width: 46px;
+      height: 46px;
+      background: radial-gradient(circle at 35% 30%, #34d399, #047857);
+      font-size: 16px;
+    }
+
+    .cd-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 900;
+      color: #f8fafc;
+    }
+    .cd-overlay.show { display: flex; }
+
+    .btn-sublbl {
+      font-size: 8.5px;
+      margin-top: -1px;
+      text-transform: uppercase;
+      opacity: 0.92;
+    }
+
+    /* Bottom Center Hero Status Bar */
+    .hero-hud-bottom {
+      position: fixed;
+      left: 50%;
+      bottom: calc(10px + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      background: rgba(7, 11, 24, 0.82);
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 12px;
+      padding: 6px 11px;
+      min-width: 170px;
+      z-index: 40;
+      pointer-events: none;
+      text-align: center;
+    }
+
+    .hp-bar-wrap {
+      height: 9px;
+      background: #1e293b;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 3px;
+    }
+    .hp-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      width: 100%;
+      transition: width 0.1s;
+    }
+    .xp-bar-wrap {
+      height: 4px;
+      background: #1e293b;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 3px;
+    }
+    .xp-bar-fill {
+      height: 100%;
+      background: #38bdf8;
+      width: 0%;
+    }
+
+    /* ================= MODALS ================= */
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.82);
+      backdrop-filter: blur(5px);
+      z-index: 90;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+    .modal-bg.show { display: flex; }
+
+    .modal-card {
+      width: 100%;
+      max-width: 440px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: #0f172a;
+      border: 1.5px solid rgba(250, 204, 21, 0.35);
+      border-radius: 18px;
+      padding: 16px;
+      color: var(--text);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+    }
+
+    .modal-title {
+      margin: 0 0 6px;
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--gold);
+    }
+
+    .modal-sub {
+      margin: 0 0 12px;
+      font-size: 12.5px;
+      color: #cbd5e1;
+      line-height: 1.45;
+    }
+
+    .qr-box {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+      color: #0f172a;
+      margin-bottom: 12px;
+    }
+    .qr-box img {
+      width: 176px;
+      height: 176px;
+      display: block;
+      margin: 0 auto 6px;
+      image-rendering: pixelated;
+    }
+
+    .upi-amount-tag {
+      display: inline-block;
+      background: #065f46;
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 15px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 5px;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 11px;
+      border: 1.5px solid #334155;
+      background: #1e293b;
+      color: #ffffff;
+      font-size: 14.5px;
+      font-weight: 800;
+      outline: none;
+      margin-bottom: 9px;
+      text-transform: uppercase;
+    }
+
+    .m-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 11px;
+      border: none;
+      font-size: 13.5px;
+      font-weight: 900;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .m-btn.green { background: #10b981; color: #022c22; }
+    .m-btn.gold { background: linear-gradient(135deg, #f59e0b, #facc15); color: #0f172a; }
+    .m-btn.blue { background: #2563eb; color: #ffffff; }
+    .m-btn.wa { background: #16a34a; color: #ffffff; }
+    .m-btn.ghost { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .perk-list {
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      background: rgba(30, 41, 59, 0.7);
+      border-radius: 12px;
+      font-size: 12px;
+      line-height: 1.55;
+      list-style: none;
+    }
+
+    /* Shop Items */
+    .shop-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .shop-item {
+      background: #162036;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 9px;
+      cursor: pointer;
+      text-align: left;
+      color: var(--text);
+    }
+    .shop-item.owned { border-color: var(--green); opacity: 0.7; }
+    .shop-item.pro-item { border-color: rgba(250, 204, 21, 0.5); }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 64px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-16px);
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid var(--gold);
+      color: #ffffff;
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.22s;
+      z-index: 150;
+      white-space: nowrap;
+      max-width: 92vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Welcome Premium Celebration */
+    .welcome-glow {
+      text-align: center;
+      padding: 8px 4px;
+    }
+    .welcome-crown { font-size: 54px; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+
+  <!-- ================= LOBBY SCREEN ================= -->
+  <div id="lobbyScreen">
+    <div class="lobby-wrap">
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <div class="profile-box">
+          <div class="rank-emblem" id="rankEmblem">⚔️</div>
+          <div class="profile-meta">
+            <div class="profile-name">
+              <span id="rankTitleText">Warrior I</span>
+              <span class="tier-badge tier-free" id="tierBadge">FREE</span>
+            </div>
+            <div class="profile-stats">
+              Lv.<span id="accLvText">1</span> • 🪙 <span id="accCoinsText">200</span> • ID: <span id="playerIdTop">LA-00000</span>
+            </div>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button type="button" class="pill-btn" id="langToggleBtn">🌐 Hinglish</button>
+          <button type="button" class="pill-btn" id="soundToggleBtn">🔊</button>
+          <button type="button" class="pill-btn gold" id="openProBtn">👑 PRO / Owner</button>
+        </div>
+      </div>
+
+      <!-- Native PWA Install Bar -->
+      <div class="install-bar" id="installBar">
+        <span>📲 <strong id="installBarMsg">Phone mein Offline Game Install Karein!</strong></span>
+        <button type="button" id="installPwaBtn">Install</button>
+      </div>
+
+      <div class="game-hero-header">
+        <h1 class="game-logo">⚔️ LEGEND ARENA</h1>
+        <div class="game-sub" id="gameSubtitle">MOBA Battle • Open World Sandbox • Online Multiplayer • Pro Enemy Radar</div>
+      </div>
+
+      <!-- Hero Selection -->
+      <div class="section-card">
+        <div class="sec-head">
+          <h2 class="sec-title" id="lblChooseHero">🛡️ Apna Hero Chunein (6 Heroes)</h2>
+          <span class="sec-hint" id="lblHeroHint">3 Free + 3 Pro Legendary</span>
+        </div>
+        <div class="hero-grid" id="heroGrid"></div>
+        <div class="hero-detail-box" id="heroDetailBox"></div>
+      </div>
+
+      <!-- 3 Game Modes -->
+      <div class="section-card">
+        <div class="sec-head">
+          <h2 class="sec-title" id="lblModes">🎮 Game Modes</h2>
+          <span class="sec-hint" id="lblModeHint">Offline + Online</span>
+        </div>
+        <div class="modes-grid">
+          <button type="button" class="mode-card" id="modeArenaCard">
+            <div>
+              <div class="mode-title">⚔️ <span id="lblModeArena">MOBA Battle Arena</span></div>
+              <div class="mode-desc" id="descModeArena">Turrets, Minions, Jungle Boss aur 10 Unlockable Levels!</div>
+            </div>
+            <span class="mode-cta" id="ctaArena">Neeche Level Chunein ↓</span>
+          </button>
+
+          <button type="button" class="mode-card world" id="playOpenWorldBtn">
+            <div>
+              <div class="mode-title">🌍 <span id="lblModeWorld">Open World Sandbox</span></div>
+              <div class="mode-desc" id="descModeWorld">5 Biomes ghoomein, Khazana lootein, Turret banayein, Dragon Boss ladayein!</div>
+            </div>
+            <span class="mode-cta" id="ctaWorld">Abhi Khelein →</span>
+          </button>
+
+          <button type="button" class="mode-card multi" id="openMultiBtn">
+            <div>
+              <div class="mode-title">🌐 <span id="lblModeMulti">Online Multiplayer</span></div>
+              <div class="mode-desc" id="descModeMulti">Room Code banayein aur apne Dost ke saath live 1v1 ya Co-op khelein!</div>
+            </div>
+            <span class="mode-cta" id="ctaMulti">Room Banayein / Join →</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 10 Unlockable Arena Stages -->
+      <div class="section-card">
+        <div class="sec-head">
+          <h2 class="sec-title" id="lblStages">🏆 MOBA Arena Levels (1 – 10)</h2>
+          <span class="sec-hint" id="stageInfoText">Stage 1: Training Valley (1v1)</span>
+        </div>
+        <div class="stage-grid" id="stageGrid"></div>
+        <button type="button" class="big-play-btn" id="startArenaBtn">⚔️ BATTLE SHURU KAREIN (STAGE 1)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= GAMEPLAY SCREEN ================= -->
+  <div id="gameScreen">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Top HUD -->
+    <div class="hud-top">
+      <div class="hud-score-pill">
+        <span class="hud-blue" id="hudBlueScore">🔵 0</span>
+        <span style="color:#64748b;">VS</span>
+        <span class="hud-red" id="hudRedScore">0 🔴</span>
+        <span class="hud-gold" id="hudGoldText">🪙 0</span>
+        <span id="hudTimerText" style="color:#cbd5e1;">00:00</span>
+      </div>
+
+      <div class="hud-top-right">
+        <button type="button" class="hud-mini-btn" id="toggleRadarBtn">📡 RADAR</button>
+        <button type="button" class="hud-mini-btn shop-ready" id="openShopBtn">🛒 Shop</button>
+        <button type="button" class="hud-mini-btn" id="fullscreenBtn">⛶</button>
+        <button type="button" class="hud-mini-btn" id="exitMatchBtn">✕</button>
+      </div>
+    </div>
+
+    <!-- Pro Radar Live Target Lock Strip -->
+    <div class="radar-hud-strip" id="radarHudStrip">📡 PRO RADAR ACTIVE • Scanning...</div>
+
+    <!-- Kill / Event Announcement Banner -->
+    <div class="announce-banner" id="announceBanner">FIRST BLOOD!</div>
+
+    <!-- Open World Sandbox Bar -->
+    <div class="sandbox-bar" id="sandboxBar">
+      <button type="button" class="sb-btn" id="sbBuildTurret">🗼 Turret Lagayein (150g)</button>
+      <button type="button" class="sb-btn" id="sbSpawnAlly">🤖 Ally Guard (200g)</button>
+      <button type="button" class="sb-btn pro-sb" id="sbProBoss">🐉 [PRO] Boss Bulao</button>
+      <button type="button" class="sb-btn pro-sb" id="sbProTp">⚡ [PRO] Teleport Biome</button>
+      <button type="button" class="sb-btn pro-sb" id="sbProGod">✨ [PRO] Instant Heal + Speed</button>
+    </div>
+
+    <!-- Bottom Center HP / Level Bar -->
+    <div class="hero-hud-bottom">
+      <div style="font-size:11px;font-weight:900;display:flex;justify-content:space-between;gap:8px;">
+        <span id="hudHeroName">Lv.1 Vajra</span>
+        <span id="hudHpNum" style="color:#34d399;">900/900</span>
+      </div>
+      <div class="hp-bar-wrap"><div class="hp-bar-fill" id="hudHpFill"></div></div>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="hudXpFill"></div></div>
+    </div>
+
+    <!-- Right-Side MOBA Touch Skill Controls -->
+    <div class="skill-cluster">
+      <button type="button" class="ctrl-btn btn-heal" id="btnHeal">
+        <span>💚</span>
+        <span class="btn-sublbl">Heal</span>
+        <div class="cd-overlay" id="cdHeal"></div>
+      </button>
+      <button type="button" class="ctrl-btn btn-s1" id="btnS1">
+        <span id="icoS1">⚡</span>
+        <span class="btn-sublbl">S1</span>
+        <div class="cd-overlay" id="cdS1"></div>
+      </button>
+      <button type="button" class="ctrl-btn btn-s2" id="btnS2">
+        <span id="icoS2">🌀</span>
+        <span class="btn-sublbl">S2</span>
+        <div class="cd-overlay" id="cdS2"></div>
+      </button>
+      <button type="button" class="ctrl-btn btn-ult" id="btnUlt">
+        <span id="icoUlt">🔥</span>
+        <span class="btn-sublbl">ULT</span>
+        <div class="cd-overlay" id="cdUlt">Lv4</div>
+      </button>
+      <button type="button" class="ctrl-btn btn-atk" id="btnAtk">
+        <span>⚔️</span>
+        <span class="btn-sublbl">ATK</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 1: PRO / FAMPAY / OWNER UNLOCK ================= -->
+  <div class="modal-bg" id="proModal">
+    <div class="modal-card">
+      <h3 class="modal-title" id="proModalTitle">👑 LEGEND PRO &amp; RADAR UNLOCK</h3>
+      <p class="modal-sub" id="proModalSub">Sirf 1 baar ₹49 pay karein aur hamesha ke liye sabhi Pro features unlock karein!</p>
+
+      <ul class="perk-list">
+        <li>📡 <b>Pro Enemy Distance Radar:</b> Har enemy &amp; boss ki exact doori (meters) aur 360° arrows!</li>
+        <li>⚔️ <b>3 Legendary Pro Heroes:</b> Shadow King, Titan Golem &amp; Dragon Lord!</li>
+        <li>🏆 <b>All 10 Arena Levels + Pro Mythic Weapons</b> in Shop!</li>
+        <li>🌍 <b>Open World God Powers:</b> Boss Spawn, Biome Teleport, Speed Boost!</li>
+      </ul>
+
+      <div class="qr-box">
+        <div class="upi-amount-tag" id="payAmountDisplay">Exact Pay: ₹49.01</div>
+        <img src="./fampay-qr.png" alt="FamPay UPI QR" />
+        <div style="font-size:12px;font-weight:900;">FamPay UPI: <span style="color:#1d4ed8;">9202312356@fam</span></div>
+        <div style="font-size:11px;color:#475569;margin-top:2px;">
+          Aapki Player ID: <b id="modalPlayerId">LA-00000</b> (UPI Note mein apne aap judegi)
+        </div>
+      </div>
+
+      <button type="button" class="m-btn green" id="payUpiBtn">📲 FamPay / UPI se Pay Karein</button>
+      <div class="two-col">
+        <button type="button" class="m-btn blue" id="autoVerifyBtn">🔄 Auto-Verify Payment</button>
+        <button type="button" class="m-btn ghost" id="copyUpiBtn">📋 UPI ID Copy</button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #334155;margin:10px 0;" />
+
+      <div style="font-size:12px;font-weight:800;color:#facc15;margin-bottom:6px;">
+        🔑 Unlock Code ya Owner Secret Code Dalein:
+      </div>
+      <input type="text" class="modal-input" id="unlockCodeInput" placeholder="PRO-XXXX-XXXX ya Owner Code" />
+      <button type="button" class="m-btn gold" id="submitCodeBtn">🔓 Code Verify &amp; Unlock Karein</button>
+      <button type="button" class="m-btn ghost" id="closeProModalBtn">Band Karein</button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 2: WELCOME PREMIUM CELEBRATION ================= -->
+  <div class="modal-bg" id="welcomeProModal">
+    <div class="modal-card welcome-glow">
+      <div class="welcome-crown" id="welcomeCrown">👑</div>
+      <h3 class="modal-title" id="welcomeTitle">🎉 WELCOME PREMIUM USER!</h3>
+      <p class="modal-sub" id="welcomeDesc">
+        Badhai ho! Aapka Premium account successfully unlock ho gaya hai. Ab Pro Enemy Distance Radar, sabhi Legendary Heroes, 10 Levels aur Open World God Powers ka maza lein!
+      </p>
+      <button type="button" class="m-btn gold" id="closeWelcomeBtn">⚔️ Abhi Khelna Shuru Karein!</button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 3: ONLINE MULTIPLAYER ================= -->
+  <div class="modal-bg" id="multiModal">
+    <div class="modal-card">
+      <h3 class="modal-title">🌐 Online Multiplayer (Dost ke Saath)</h3>
+      <p class="modal-sub">Room banayein aur 5-digit Code apne dost ko bhejein — seedha 1v1 Duel ya Open World Co-op khelein!</p>
+
+      <div class="two-col" style="margin-bottom:10px;">
+        <button type="button" class="m-btn blue" id="mpTypeDuelBtn">⚔️ 1v1 MOBA Duel</button>
+        <button type="button" class="m-btn ghost" id="mpTypeCoopBtn">🌍 Open World Co-op</button>
+      </div>
+
+      <button type="button" class="m-btn gold" id="hostRoomBtn">🏠 Naya Room Banayein (Host)</button>
+
+      <div id="hostRoomBox" style="display:none;background:#162036;border:1px solid #38bdf8;border-radius:12px;padding:11px;margin-bottom:10px;text-align:center;">
+        <div style="font-size:11.5px;color:#94a3b8;font-weight:800;">AAPKA ROOM CODE</div>
+        <div id="hostCodeText" style="font-size:28px;font-weight:900;color:#facc15;letter-spacing:4px;margin:4px 0;">-----</div>
+        <div id="hostStatusText" style="font-size:12px;color:#38bdf8;font-weight:700;margin-bottom:8px;">Dost ka intezar ho raha hai...</div>
+        <button type="button" class="m-btn wa" id="waInviteBtn" style="margin-bottom:0;">💬 WhatsApp par Dost ko Bulayein</button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #334155;margin:10px 0;" />
+
+      <div style="font-size:12px;font-weight:800;color:#cbd5e1;margin-bottom:6px;">Ya Dost ka Room Code Dalein:</div>
+      <input type="number" class="modal-input" id="joinCodeInput" placeholder="Jaise: 58291" />
+      <button type="button" class="m-btn green" id="joinRoomBtn">🚀 Room Join Karein</button>
+      <div id="joinStatusText" style="font-size:12px;color:#38bdf8;text-align:center;min-height:18px;margin-bottom:6px;"></div>
+
+      <button type="button" class="m-btn ghost" id="closeMultiModalBtn">Wapas Lobby</button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 4: IN-MATCH ITEM SHOP ================= -->
+  <div class="modal-bg" id="shopModal">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h3 class="modal-title" style="margin:0;">🛒 Battle Item Shop</h3>
+        <span class="hud-gold" style="font-weight:900;font-size:15px;" id="shopGoldDisplay">🪙 0</span>
+      </div>
+      <div class="shop-grid" id="shopGrid"></div>
+      <button type="button" class="m-btn ghost" id="closeShopBtn">Match mein Wapas</button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 5: MATCH RESULT ================= -->
+  <div class="modal-bg" id="resultModal">
+    <div class="modal-card welcome-glow">
+      <div class="welcome-crown" id="resultIcon">🏆</div>
+      <h3 class="modal-title" id="resultTitle">VICTORY!</h3>
+      <p class="modal-sub" id="resultStats"></p>
+      <button type="button" class="m-btn gold" id="resultNextBtn">⚔️ Agla Level / Dobara Khelein</button>
+      <button type="button" class="m-btn ghost" id="resultLobbyBtn">🏠 Lobby mein Jayein</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ================================================================
+       OWNER CONFIG (FamPay + Optional Google Apps Script Auto-Verify)
+       ================================================================ */
+    const UPI_ID = '9202312356@fam';
+    const UPI_NAME = 'LegendArena';
+    const BASE_PRICE_RS = 49;
+    // Jab aap fampay-auto-verify.gs deploy karein, uska Web App URL yahan paste kar dein:
+    const AUTO_VERIFY_API_URL = '';
+
+    // Salted Hash of Owner Master Secret Code (plaintext code is NEVER stored here)
+    const OWNER_MASTER_HASH = '80A1088B24B84443';
+
+    function mix32(str, seed) {
+      let h = seed >>> 0;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 0x01000193) >>> 0;
+      }
+      h ^= h >>> 16;
+      h = Math.imul(h, 0x85EBCA6B) >>> 0;
+      h ^= h >>> 13;
+      h = Math.imul(h, 0xC2B2AE35) >>> 0;
+      h ^= h >>> 16;
+      return h >>> 0;
+    }
+
+    function hash64Hex(str) {
+      const h1 = mix32(str + '::A92', 0x811C9DC5).toString(16).toUpperCase().padStart(8, '0');
+      const h2 = mix32('Z47::' + str, 0x9E3779B9).toString(16).toUpperCase().padStart(8, '0');
+      return h1 + h2;
+    }
+
+    function expectedProKeyForPlayer(pid) {
+      const raw = hash64Hex('LA_PRO_UNLOCK_9202312356::' + String(pid).toUpperCase());
+      return 'PRO-' + raw.slice(0, 4) + '-' + raw.slice(4, 8);
+    }
+
+    function getUniquePayAmount(pid) {
+      const h = mix32(pid, 0x1337BEEF);
+      const paise = (h % 99) + 1;
+      return BASE_PRICE_RS + '.' + String(paise).padStart(2, '0');
+    }
+
+    /* ================================================================
+       PERSISTENT PLAYER ACCOUNT & SAVE SYSTEM
+       ================================================================ */
+    const SAVE_KEY = 'legend_arena_save_v1';
+
+    function loadSave() {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      const randId = 'LA-' + (10000 + Math.floor(Math.random() * 89999));
+      return {
+        playerId: randId,
+        tier: 'free', // 'free' | 'pro' | 'owner'
+        lang: 'hinglish', // 'hinglish' | 'hi' | 'en'
+        sound: true,
+        selectedHero: 'vajra',
+        selectedStage: 1,
+        maxStage: 1,
+        stageStars: {},
+        xp: 0,
+        level: 1,
+        coins: 250,
+        wins: 0,
+        kills: 0
+      };
+    }
+
+    let save = loadSave();
+    function persistSave() {
+      try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {}
+    }
+    persistSave();
+
+    function isPro() {
+      return save.tier === 'pro' || save.tier === 'owner';
+    }
+
+    /* ================================================================
+       MULTI-LANGUAGE DICTIONARY (Hinglish / हिन्दी / English)
+       ================================================================ */
+    const LANG = {
+      hinglish: {
+        langLabel: '🌐 Hinglish',
+        subtitle: 'MOBA Battle • Open World Sandbox • Online Multiplayer • Pro Enemy Radar',
+        chooseHero: '🛡️ Apna Hero Chunein (6 Heroes)',
+        heroHint: '3 Free + 3 Pro Legendary',
+        modes: '🎮 Game Modes',
+        modeArena: 'MOBA Battle Arena',
+        descArena: 'Turrets, Minions, Jungle Boss aur 10 Unlockable Levels!',
+        ctaArena: 'Neeche Level Chunein ↓',
+        modeWorld: 'Open World Sandbox',
+        descWorld: '5 Biomes ghoomein, Khazana lootein, Turret banayein, Dragon Boss ladayein!',
+        ctaWorld: 'Abhi Khelein →',
+        modeMulti: 'Online Multiplayer',
+        descMulti: 'Room Code banayein aur apne Dost ke saath live 1v1 ya Co-op khelein!',
+        ctaMulti: 'Room Banayein / Join →',
+        stages: '🏆 MOBA Arena Levels (1 – 10)',
+        playArena: '⚔️ BATTLE SHURU KAREIN (STAGE ',
+        proNeed: '👑 Yeh Pro Feature hai! ₹49 mein ya Owner Code se Unlock karein.'
+      },
+      hi: {
+        langLabel: '🌐 हिन्दी',
+        subtitle: 'मोबा बैटल • ओपन वर्ल्ड • ऑनलाइन मल्टीप्लेयर • प्रो दुश्मन रडार',
+        chooseHero: '🛡️ अपना हीरो चुनें (6 हीरो)',
+        heroHint: '3 फ्री + 3 प्रो लेजेंडरी',
+        modes: '🎮 गेम मोड्स',
+        modeArena: 'मोबा बैटल एरीना',
+        descArena: 'टरेट, मिनियन, जंगल बॉस और 10 अनलॉक होने वाले लेवल!',
+        ctaArena: 'नीचे लेवल चुनें ↓',
+        modeWorld: 'ओपन वर्ल्ड सैंडबॉक्स',
+        descWorld: '5 दुनिया घूमो, खजाना लूटो, टरेट बनाओ और ड्रैगन बॉस से लड़ो!',
+        ctaWorld: 'अभी खेलें →',
+        modeMulti: 'ऑनलाइन मल्टीप्लेयर',
+        descMulti: 'रूम कोड बनाएं और अपने दोस्त के साथ लाइव खेलें!',
+        ctaMulti: 'रूम बनाएं / जुड़ें →',
+        stages: '🏆 एरीना लेवल (1 – 10)',
+        playArena: '⚔️ युद्ध शुरू करें (लेवल ',
+        proNeed: '👑 यह प्रो फीचर है! ₹49 या ओनर कोड से अनलॉक करें।'
+      },
+      en: {
+        langLabel: '🌐 English',
+        subtitle: 'MOBA Battle • Open World Sandbox • Online Multiplayer • Pro Enemy Radar',
+        chooseHero: '🛡️ Choose Your Hero (6 Heroes)',
+        heroHint: '3 Free + 3 Pro Legendary',
+        modes: '🎮 Game Modes',
+        modeArena: 'MOBA Battle Arena',
+        descArena: 'Turrets, Minions, Jungle Boss & 10 Unlockable Stages!',
+        ctaArena: 'Select Stage Below ↓',
+        modeWorld: 'Open World Sandbox',
+        descWorld: 'Explore 5 Biomes, loot chests, build turrets & fight the Dragon Boss!',
+        ctaWorld: 'Enter World →',
+        modeMulti: 'Online Multiplayer',
+        descMulti: 'Create a Room Code & play live 1v1 Duel or Co-op with your friend!',
+        ctaMulti: 'Host / Join Room →',
+        stages: '🏆 MOBA Arena Stages (1 – 10)',
+        playArena: '⚔️ START BATTLE (STAGE ',
+        proNeed: '👑 Pro Feature! Unlock with ₹49 FamPay or Owner Code.'
+      }
+    };
+
+    /* ================================================================
+       WEB AUDIO SYNTHESIZER (100% Offline Sound Effects)
+       ================================================================ */
+    let audioCtx = null;
+    function playSfx(type) {
+      if (!save.sound) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'hit') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.exponentialRampToValueAtTime(70, now + 0.09);
+          gain.gain.setValueAtTime(0.16, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+          osc.start(now); osc.stop(now + 0.09);
+        } else if (type === 'skill') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(680, now + 0.16);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+          osc.start(now); osc.stop(now + 0.18);
+        } else if (type === 'ult') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.exponentialRampToValueAtTime(520, now + 0.12);
+          osc.frequency.exponentialRampToValueAtTime(80, now + 0.45);
+          gain.gain.setValueAtTime(0.24, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.46);
+          osc.start(now); osc.stop(now + 0.46);
+        } else if (type === 'kill' || type === 'levelup') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523, now);
+          osc.frequency.setValueAtTime(659, now + 0.08);
+          osc.frequency.setValueAtTime(784, now + 0.16);
+          osc.frequency.setValueAtTime(1046, now + 0.24);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+          osc.start(now); osc.stop(now + 0.42);
+        } else if (type === 'coin') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.setValueAtTime(1320, now + 0.06);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+          osc.start(now); osc.stop(now + 0.16);
+        }
+      } catch (e) {}
+    }
+
+    /* ================================================================
+       6 PLAYABLE MOBA HEROES (3 Free + 3 Pro Legendary)
+       ================================================================ */
+    const HEROES = [
+      {
+        id: 'vajra', name: 'Vajra', role: 'Fighter', icon: '⚔️', color: '#38bdf8', pro: false,
+        hp: 1050, atk: 68, spd: 215, range: 92, ranged: false,
+        s1: { name: 'Dragon Dash', ico: '💨', cd: 4.5, desc: 'Tez dash + slash damage' },
+        s2: { name: 'Whirlwind', ico: '🌀', cd: 6.5, desc: '360° ghoom kar sab par waar' },
+        ult: { name: 'Meteor Slam', ico: '☄️', cd: 16, desc: 'Bhari AoE dhamaka + Stun' }
+      },
+      {
+        id: 'asha', name: 'Asha', role: 'Marksman', icon: '🏹', color: '#34d399', pro: false,
+        hp: 820, atk: 78, spd: 225, range: 265, ranged: true,
+        s1: { name: 'Twin Volley', ico: '🏹', cd: 4.0, desc: '3 tez teer ek saath' },
+        s2: { name: 'Frost Arrow', ico: '❄️', cd: 6.0, desc: 'Dushman ko slow karein' },
+        ult: { name: 'Arrow Storm', ico: '🌩️', cd: 15, desc: 'Teeron ki barsaat (High DMG)' }
+      },
+      {
+        id: 'kael', name: 'Kael', role: 'Mage', icon: '🔮', color: '#a855f7', pro: false,
+        hp: 790, atk: 84, spd: 212, range: 275, ranged: true,
+        s1: { name: 'Arcane Orb', ico: '🔮', cd: 3.8, desc: 'Bada magic gola' },
+        s2: { name: 'Thunder Nova', ico: '⚡', cd: 6.5, desc: 'Bijli ka jhatka + Stun' },
+        ult: { name: 'Supernova', ico: '💥', cd: 17, desc: 'Vishal jaadui visphot' }
+      },
+      {
+        id: 'shadow', name: 'Shadow King', role: 'Assassin', icon: '🥷', color: '#f43f5e', pro: true,
+        hp: 940, atk: 102, spd: 252, range: 115, ranged: false,
+        s1: { name: 'Shadow Blink', ico: '⚡', cd: 3.5, desc: 'Dushman ke peeche teleport + Crit' },
+        s2: { name: 'Phantom Clone', ico: '👥', cd: 8.5, desc: 'Apna nakli Clone banayein jo ladega!' },
+        ult: { name: 'Death Mark', ico: '☠️', cd: 15, desc: '5 tez slashes + Massive Crit!' }
+      },
+      {
+        id: 'titan', name: 'Titan Golem', role: 'Tank', icon: '🛡️', color: '#f59e0b', pro: true,
+        hp: 1620, atk: 76, spd: 198, range: 100, ranged: false,
+        s1: { name: 'Tremor Slam', ico: '🪨', cd: 4.5, desc: 'Zameen tod shockwave' },
+        s2: { name: 'Iron Fortress', ico: '🛡️', cd: 8.0, desc: 'Bhari Shield + HP Regen' },
+        ult: { name: 'Cataclysm', ico: '🌋', cd: 16, desc: 'Poora area hila de + 2s Stun' }
+      },
+      {
+        id: 'dragon', name: 'Dragon Lord', role: 'Mythic', icon: '🐉', color: '#facc15', pro: true,
+        hp: 1280, atk: 98, spd: 238, range: 235, ranged: true,
+        s1: { name: 'Flame Breath', ico: '🔥', cd: 3.6, desc: 'Aag ke 5 gole ek saath' },
+        s2: { name: 'Dragon Surge', ico: '🪽', cd: 7.0, desc: 'Super speed + Aag ka ghera' },
+        ult: { name: 'Inferno Nova', ico: '☀️', cd: 15, desc: 'Asmani aag ki baarish (OP!)' }
+      }
+    ];
+
+    const STAGES = [
+      { id: 1, name: 'Training Valley', teamSize: 1, diff: 0.78, pro: false, reward: 120 },
+      { id: 2, name: 'River Clash', teamSize: 2, diff: 0.90, pro: false, reward: 180 },
+      { id: 3, name: 'Emerald Lane', teamSize: 3, diff: 1.00, pro: false, reward: 240 },
+      { id: 4, name: 'Shadow Gorge', teamSize: 3, diff: 1.12, pro: true, reward: 300 },
+      { id: 5, name: 'Volcano Siege', teamSize: 3, diff: 1.24, pro: true, reward: 360 },
+      { id: 6, name: 'Titan Citadel', teamSize: 3, diff: 1.36, pro: true, reward: 420 },
+      { id: 7, name: 'Storm Nexus', teamSize: 3, diff: 1.48, pro: true, reward: 500 },
+      { id: 8, name: 'Demon Keep', teamSize: 3, diff: 1.62, pro: true, reward: 600 },
+      { id: 9, name: 'Celestial Rift', teamSize: 3, diff: 1.78, pro: true, reward: 750 },
+      { id: 10, name: 'Mythic Throne', teamSize: 3, diff: 1.98, pro: true, reward: 1000 }
+    ];
+
+    const SHOP_ITEMS = [
+      { id: 'boots', name: 'Swift Boots', ico: '🥾', cost: 160, desc: '+45 Speed', pro: false, apply: p => { p.spd += 45; } },
+      { id: 'blade', name: 'Fury Blade', ico: '🗡️', cost: 240, desc: '+34 Attack', pro: false, apply: p => { p.atk += 34; } },
+      { id: 'armor', name: 'Aegis Armor', ico: '🛡️', cost: 260, desc: '+420 Max HP', pro: false, apply: p => { p.maxHp += 420; p.hp += 420; } },
+      { id: 'vamp', name: 'Blood Axe', ico: '🪓', cost: 340, desc: '+28 ATK + 22% Lifesteal', pro: false, apply: p => { p.atk += 28; p.lifesteal += 0.22; } },
+      { id: 'katana', name: 'Mythic Katana', ico: '⚡', cost: 420, desc: '+75 ATK + 35% Crit', pro: true, apply: p => { p.atk += 75; p.crit += 0.35; } },
+      { id: 'crown', name: 'Dragon Crown', ico: '👑', cost: 480, desc: '+650 HP + 30% Fast CD', pro: true, apply: p => { p.maxHp += 650; p.hp += 650; p.cdr = Math.min(0.45, p.cdr + 0.30); } }
+    ];
+
+    function getRankName(lv) {
+      if (lv >= 20) return ['Mythic Glory', '👑'];
+      if (lv >= 15) return ['Legend', '🐉'];
+      if (lv >= 11) return ['Epic', '💎'];
+      if (lv >= 8) return ['Grandmaster', '🔥'];
+      if (lv >= 5) return ['Master', '🛡️'];
+      if (lv >= 3) return ['Elite', '⚡'];
+      return ['Warrior', '⚔️'];
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(window._laToast);
+      window._laToast = setTimeout(() => el.classList.remove('show'), 2500);
+    }
+
+    /* ================================================================
+       LOBBY RENDERING & INTERACTIONS
+       ================================================================ */
+    function renderLobby() {
+      const L = LANG[save.lang] || LANG.hinglish;
+      const [rankName, rankIco] = getRankName(save.level);
+
+      document.getElementById('rankEmblem').textContent = rankIco;
+      document.getElementById('rankTitleText').textContent = rankName;
+      document.getElementById('accLvText').textContent = save.level;
+      document.getElementById('accCoinsText').textContent = save.coins;
+      document.getElementById('playerIdTop').textContent = save.playerId;
+
+      const tb = document.getElementById('tierBadge');
+      if (save.tier === 'owner') {
+        tb.className = 'tier-badge tier-owner';
+        tb.textContent = '👑 OWNER';
+      } else if (save.tier === 'pro') {
+        tb.className = 'tier-badge tier-pro';
+        tb.textContent = '⭐ PRO';
+      } else {
+        tb.className = 'tier-badge tier-free';
+        tb.textContent = 'FREE';
+      }
+
+      document.getElementById('langToggleBtn').textContent = L.langLabel;
+      document.getElementById('soundToggleBtn').textContent = save.sound ? '🔊' : '🔇';
+      document.getElementById('gameSubtitle').textContent = L.subtitle;
+      document.getElementById('lblChooseHero').textContent = L.chooseHero;
+      document.getElementById('lblHeroHint').textContent = L.heroHint;
+      document.getElementById('lblModes').textContent = L.modes;
+      document.getElementById('lblModeArena').textContent = L.modeArena;
+      document.getElementById('descModeArena').textContent = L.descArena;
+      document.getElementById('ctaArena').textContent = L.ctaArena;
+      document.getElementById('lblModeWorld').textContent = L.modeWorld;
+      document.getElementById('descModeWorld').textContent = L.descWorld;
+      document.getElementById('ctaWorld').textContent = L.ctaWorld;
+      document.getElementById('lblModeMulti').textContent = L.modeMulti;
+      document.getElementById('descModeMulti').textContent = L.descMulti;
+      document.getElementById('ctaMulti').textContent = L.ctaMulti;
+      document.getElementById('lblStages').textContent = L.stages;
+
+      // Heroes Grid
+      const hGrid = document.getElementById('heroGrid');
+      hGrid.innerHTML = HEROES.map(h => {
+        const locked = h.pro && !isPro();
+        const sel = save.selectedHero === h.id;
+        return `
+          <div class="hero-card ${sel ? 'selected' : ''} ${locked ? 'locked' : ''}" data-hid="${h.id}">
+            ${h.pro ? `<span class="pro-tag">${locked ? '🔒 PRO' : '⭐ PRO'}</span>` : ''}
+            <div class="hero-avatar" style="background:${h.color}28;border-color:${h.color};">${h.icon}</div>
+            <div class="hero-name">${h.name}</div>
+            <div class="hero-role">${h.role}</div>
+          </div>
+        `;
+      }).join('');
+
+      hGrid.querySelectorAll('.hero-card').forEach(el => {
+        el.addEventListener('click', () => {
+          const hero = HEROES.find(x => x.id === el.dataset.hid);
+          if (hero.pro && !isPro()) {
+            showToast(L.proNeed);
+            openProModal();
+            return;
+          }
+          save.selectedHero = hero.id;
+          persistSave();
+          playSfx('coin');
+          renderLobby();
+        });
+      });
+
+      // Hero Detail Box
+      const curH = HEROES.find(x => x.id === save.selectedHero) || HEROES[0];
+      document.getElementById('heroDetailBox').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <b style="color:${curH.color};font-size:14px;">${curH.icon} ${curH.name} (${curH.role})</b>
+          <span style="font-size:11px;color:#94a3b8;">${curH.ranged ? 'Ranged' : 'Melee'}</span>
+        </div>
+        <div style="margin-top:4px;color:#cbd5e1;">
+          <b>S1 ${curH.s1.ico}:</b> ${curH.s1.name} • <b>S2 ${curH.s2.ico}:</b> ${curH.s2.name} • <b>ULT ${curH.ult.ico}:</b> ${curH.ult.name}
+        </div>
+        <div class="stat-bars">
+          <div><div class="sbar-lbl">HP ${curH.hp}</div><div class="sbar-track"><div class="sbar-fill" style="width:${Math.min(100, curH.hp / 16.5)}%;background:#10b981;"></div></div></div>
+          <div><div class="sbar-lbl">ATK ${curH.atk}</div><div class="sbar-track"><div class="sbar-fill" style="width:${Math.min(100, curH.atk)}%;background:#f43f5e;"></div></div></div>
+          <div><div class="sbar-lbl">SPD ${curH.spd}</div><div class="sbar-track"><div class="sbar-fill" style="width:${Math.min(100, curH.spd / 2.6)}%;background:#38bdf8;"></div></div></div>
+        </div>
+      `;
+
+      // Stage Grid
+      const sGrid = document.getElementById('stageGrid');
+      sGrid.innerHTML = STAGES.map(st => {
+        const proLocked = st.pro && !isPro();
+        const progLocked = !isPro() && st.id > save.maxStage;
+        const locked = proLocked || progLocked;
+        const stars = save.stageStars[st.id] || 0;
+        const sel = save.selectedStage === st.id;
+        return `
+          <button type="button" class="stage-btn ${sel ? 'selected' : ''} ${locked ? 'locked' : ''}" data-sid="${st.id}">
+            <div>${locked ? '🔒' : 'Lv.' + st.id}</div>
+            <div class="stage-stars">${proLocked ? 'PRO' : (stars > 0 ? '★'.repeat(stars) : st.teamSize + 'v' + st.teamSize)}</div>
+          </button>
+        `;
+      }).join('');
+
+      sGrid.querySelectorAll('.stage-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const st = STAGES.find(x => x.id === Number(btn.dataset.sid));
+          if (st.pro && !isPro()) {
+            showToast(L.proNeed);
+            openProModal();
+            return;
+          }
+          if (!isPro() && st.id > save.maxStage) {
+            showToast(`Pehle Stage ${save.maxStage} jeetein!`);
+            return;
+          }
+          save.selectedStage = st.id;
+          persistSave();
+          playSfx('coin');
+          renderLobby();
+        });
+      });
+
+      const curSt = STAGES.find(x => x.id === save.selectedStage) || STAGES[0];
+      document.getElementById('stageInfoText').textContent = `Stage ${curSt.id}: ${curSt.name} (${curSt.teamSize}v${curSt.teamSize})`;
+      document.getElementById('startArenaBtn').textContent = `${L.playArena}${curSt.id} • ${curSt.name.toUpperCase()})`;
+    }
+
+    document.getElementById('langToggleBtn').addEventListener('click', () => {
+      const order = ['hinglish', 'hi', 'en'];
+      save.lang = order[(order.indexOf(save.lang) + 1) % order.length];
+      persistSave();
+      renderLobby();
+    });
+
+    document.getElementById('soundToggleBtn').addEventListener('click', () => {
+      save.sound = !save.sound;
+      persistSave();
+      renderLobby();
+    });
+
+    /* ================================================================
+       PRO / FAMPAY / AUTO-VERIFY / OWNER SECRET UNLOCK SYSTEM
+       ================================================================ */
+    const proModal = document.getElementById('proModal');
+
+    function openProModal() {
+      const amt = getUniquePayAmount(save.playerId);
+      document.getElementById('payAmountDisplay').textContent = `Exact Pay: ₹${amt}`;
+      document.getElementById('modalPlayerId').textContent = save.playerId;
+      document.getElementById('payUpiBtn').textContent = `📲 FamPay / UPI se ₹${amt} Pay Karein`;
+      document.getElementById('unlockCodeInput').value = '';
+      proModal.classList.add('show');
+    }
+
+    document.getElementById('openProBtn').addEventListener('click', openProModal);
+    document.getElementById('closeProModalBtn').addEventListener('click', () => proModal.classList.remove('show'));
+
+    document.getElementById('copyUpiBtn').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(UPI_ID); } catch (e) {}
+      showToast('FamPay UPI ID Copy ho gayi: ' + UPI_ID);
+    });
+
+    document.getElementById('payUpiBtn').addEventListener('click', () => {
+      const amt = getUniquePayAmount(save.playerId);
+      const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_NAME)}&am=${amt}&cu=INR&tn=${encodeURIComponent(save.playerId)}`;
+      window.location.href = upiUrl;
+      showToast(`UPI app khul raha hai — Exact ₹${amt} pay karein!`);
+    });
+
+    function activateTier(tier) {
+      save.tier = tier;
+      if (tier === 'owner' || tier === 'pro') {
+        save.maxStage = 10;
+      }
+      persistSave();
+      proModal.classList.remove('show');
+      renderLobby();
+      playSfx('levelup');
+
+      const wModal = document.getElementById('welcomeProModal');
+      if (tier === 'owner') {
+        document.getElementById('welcomeCrown').textContent = '👑🔥';
+        document.getElementById('welcomeTitle').textContent = '👑 WELCOME OWNER (GOD MODE)!';
+        document.getElementById('welcomeDesc').textContent = 'Abhishek Owner Access activated! Aapke liye saare Pro Heroes, Pro Enemy Distance Radar, All 10 Levels aur Open World God Powers 100% unlocked hain!';
+      } else {
+        document.getElementById('welcomeCrown').textContent = '🎉👑';
+        document.getElementById('welcomeTitle').textContent = '🎉 WELCOME PREMIUM USER!';
+        document.getElementById('welcomeDesc').textContent = 'Payment confirm ho gaya! Aap ab Legend Arena ke Premium User hain — Pro Enemy Radar, Legendary Heroes aur Open World God Powers ka maza lein!';
+      }
+      wModal.classList.add('show');
+    }
+
+    document.getElementById('closeWelcomeBtn').addEventListener('click', () => {
+      document.getElementById('welcomeProModal').classList.remove('show');
+    });
+
+    document.getElementById('submitCodeBtn').addEventListener('click', () => {
+      const code = document.getElementById('unlockCodeInput').value.trim().toUpperCase();
+      if (!code) { showToast('Kripya code dalein'); return; }
+
+      // 1. Check Owner Master Secret Code (hashed comparison)
+      if (hash64Hex('LA_OWNER_MASTER::' + code) === OWNER_MASTER_HASH) {
+        activateTier('owner');
+        return;
+      }
+
+      // 2. Check Device-Locked Player Pro Key
+      const expected = expectedProKeyForPlayer(save.playerId);
+      if (code === expected) {
+        activateTier('pro');
+        return;
+      }
+
+      showToast('❌ Galat Code! Sahi Payment Code ya Owner Code dalein.');
+    });
+
+    document.getElementById('autoVerifyBtn').addEventListener('click', async () => {
+      if (isPro()) { showToast('Aap pehle se Premium User hain! 👑'); return; }
+      if (!AUTO_VERIFY_API_URL) {
+        showToast('Payment bhejne ke baad Owner se mila PRO Code neeche dalein (ya Auto-Verify URL jodein)');
+        return;
+      }
+      const amt = getUniquePayAmount(save.playerId);
+      showToast('FamPay payment check ho raha hai...');
+      try {
+        const res = await fetch(`${AUTO_VERIFY_API_URL}?action=verify&playerId=${encodeURIComponent(save.playerId)}&amount=${encodeURIComponent(amt)}`);
+        const data = await res.json();
+        if (data && data.verified && data.key === expectedProKeyForPlayer(save.playerId)) {
+          activateTier('pro');
+        } else {
+          showToast('Abhi payment confirm nahi mila — 5 second baad phir try karein.');
+        }
+      } catch (err) {
+        showToast('Internet check karein ya unlock code dalein.');
+      }
+    });
+
+    /* ================================================================
+       ONLINE MULTIPLAYER (PeerJS WebRTC P2P — Room Code)
+       ================================================================ */
+    const multiModal = document.getElementById('multiModal');
+    let mpModeType = 'duel'; // 'duel' | 'coop'
+    let peer = null;
+    let mpConn = null;
+    let isMpHost = false;
+    let mpActive = false;
+    let remotePlayerState = null;
+
+    function loadPeerJS() {
+      return new Promise((resolve, reject) => {
+        if (window.Peer) return resolve();
+        if (!navigator.onLine) return reject(new Error('Offline'));
+        const s = document.createElement('script');
+        s.src = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error('PeerJS CDN load failed'));
+        document.head.appendChild(s);
+      });
+    }
+
+    function cleanupMultiplayer() {
+      mpActive = false;
+      remotePlayerState = null;
+      if (mpConn) { try { mpConn.close(); } catch (e) {} mpConn = null; }
+      if (peer) { try { peer.destroy(); } catch (e) {} peer = null; }
+    }
+
+    document.getElementById('openMultiBtn').addEventListener('click', () => {
+      document.getElementById('hostRoomBox').style.display = 'none';
+      document.getElementById('joinStatusText').textContent = '';
+      multiModal.classList.add('show');
+    });
+    document.getElementById('closeMultiModalBtn').addEventListener('click', () => {
+      if (!gameRunning) cleanupMultiplayer();
+      multiModal.classList.remove('show');
+    });
+
+    document.getElementById('mpTypeDuelBtn').addEventListener('click', () => {
+      mpModeType = 'duel';
+      document.getElementById('mpTypeDuelBtn').className = 'm-btn blue';
+      document.getElementById('mpTypeCoopBtn').className = 'm-btn ghost';
+    });
+    document.getElementById('mpTypeCoopBtn').addEventListener('click', () => {
+      mpModeType = 'coop';
+      document.getElementById('mpTypeCoopBtn').className = 'm-btn green';
+      document.getElementById('mpTypeDuelBtn').className = 'm-btn ghost';
+    });
+
+    function setupMpConnection(conn, hostFlag) {
+      mpConn = conn;
+      isMpHost = hostFlag;
+      mpActive = true;
+      conn.on('data', (msg) => {
+        if (!msg || typeof msg !== 'object') return;
+        if (msg.type === 'start') {
+          mpModeType = msg.mode || 'duel';
+          multiModal.classList.remove('show');
+          startMatch(mpModeType === 'coop' ? 'openworld' : 'arena', 1, true);
+        } else if (msg.type === 'state') {
+          remotePlayerState = msg;
+        } else if (msg.type === 'hit_remote') {
+          if (G && G.player && G.player.alive) {
+            damageUnit(G.player, msg.dmg, null);
+          }
+        }
+      });
+      conn.on('close', () => {
+        if (gameRunning && mpActive) showToast('Dost disconnect ho gaya');
+        mpActive = false;
+      });
+    }
+
+    document.getElementById('hostRoomBtn').addEventListener('click', async () => {
+      if (!navigator.onLine) { showToast('Multiplayer ke liye internet ON karein!'); return; }
+      cleanupMultiplayer();
+      const code = String(10000 + Math.floor(Math.random() * 89999));
+      document.getElementById('hostRoomBox').style.display = 'block';
+      document.getElementById('hostCodeText').textContent = code;
+      document.getElementById('hostStatusText').textContent = 'Server se connect ho raha hai...';
+
+      try {
+        await loadPeerJS();
+        peer = new Peer('legend-arena-room-' + code);
+        peer.on('open', () => {
+          document.getElementById('hostStatusText').textContent = '✅ Room Ready! Dost ko Code bhejein...';
+        });
+        peer.on('connection', (conn) => {
+          setupMpConnection(conn, true);
+          conn.on('open', () => {
+            document.getElementById('hostStatusText').textContent = '🎉 Dost jud gaya! Match shuru...';
+            conn.send({ type: 'start', mode: mpModeType });
+            setTimeout(() => {
+              multiModal.classList.remove('show');
+              startMatch(mpModeType === 'coop' ? 'openworld' : 'arena', 1, true);
+            }, 400);
+          });
+        });
+        peer.on('error', () => {
+          document.getElementById('hostStatusText').textContent = '❌ Network error — dobara Host dabayein.';
+        });
+      } catch (e) {
+        document.getElementById('hostStatusText').textContent = '❌ Online server unavailable.';
+      }
+    });
+
+    document.getElementById('waInviteBtn').addEventListener('click', () => {
+      const code = document.getElementById('hostCodeText').textContent;
+      const link = window.location.href.split('?')[0];
+      const msg = `⚔️ *LEGEND ARENA* mein mere saath live khelo!\n🎮 Room Code: *${code}*\n👉 Game Link: ${link}`;
+      window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+    });
+
+    document.getElementById('joinRoomBtn').addEventListener('click', async () => {
+      const code = document.getElementById('joinCodeInput').value.trim();
+      if (code.length < 4) { showToast('Sahi 5-digit Room Code dalein'); return; }
+      if (!navigator.onLine) { showToast('Multiplayer ke liye internet ON karein!'); return; }
+      cleanupMultiplayer();
+      document.getElementById('joinStatusText').textContent = 'Room dhoondha ja raha hai...';
+      try {
+        await loadPeerJS();
+        peer = new Peer();
+        peer.on('open', () => {
+          const conn = peer.connect('legend-arena-room-' + code);
+          setupMpConnection(conn, false);
+          conn.on('open', () => {
+            document.getElementById('joinStatusText').textContent = '✅ Jud gaye! Match shuru ho raha hai...';
+          });
+          conn.on('error', () => {
+            document.getElementById('joinStatusText').textContent = '❌ Room nahi mila.';
+          });
+        });
+        peer.on('error', () => {
+          document.getElementById('joinStatusText').textContent = '❌ Room Code galat hai ya Host offline hai.';
+        });
+      } catch (e) {
+        document.getElementById('joinStatusText').textContent = '❌ Internet connection check karein.';
+      }
+    });
+
+    /* ================================================================
+       CORE 60 FPS MOBA + OPEN WORLD GAME ENGINE
+       ================================================================ */
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let gameRunning = false;
+    let rafId = null;
+    let lastTime = 0;
+    let G = null;
+
+    // Input State (Multi-Touch Joystick + Keyboard)
+    const joy = { active: false, id: null, sx: 0, sy: 0, cx: 0, cy: 0, dx: 0, dy: 0 };
+    const keys = {};
+
+    window.addEventListener('keydown', (e) => {
+      keys[e.key.toLowerCase()] = true;
+      if (!gameRunning) return;
+      if (e.key === ' ') doBasicAttack();
+      if (e.key === '1') castSkill(1);
+      if (e.key === '2') castSkill(2);
+      if (e.key === '3') castSkill(3);
+      if (e.key === 'q') castHeal();
+    });
+    window.addEventListener('keyup', (e) => { keys[e.key.toLowerCase()] = false; });
+
+    canvas.addEventListener('touchstart', (e) => {
+      for (const t of e.changedTouches) {
+        if (!joy.active && t.clientX < window.innerWidth * 0.55) {
+          joy.active = true;
+          joy.id = t.identifier;
+          joy.sx = t.clientX;
+          joy.sy = t.clientY;
+          joy.cx = t.clientX;
+          joy.cy = t.clientY;
+          joy.dx = 0;
+          joy.dy = 0;
+        }
+      }
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', (e) => {
+      if (!joy.active) return;
+      for (const t of e.changedTouches) {
+        if (t.identifier === joy.id) {
+          const maxR = 54;
+          const ox = t.clientX - joy.sx;
+          const oy = t.clientY - joy.sy;
+          const d = Math.hypot(ox, oy);
+          if (d > maxR) {
+            joy.cx = joy.sx + (ox / d) * maxR;
+            joy.cy = joy.sy + (oy / d) * maxR;
+            joy.dx = ox / d;
+            joy.dy = oy / d;
+          } else {
+            joy.cx = t.clientX;
+            joy.cy = t.clientY;
+            joy.dx = d > 6 ? ox / maxR : 0;
+            joy.dy = d > 6 ? oy / maxR : 0;
+          }
+        }
+      }
+    }, { passive: true });
+
+    function endTouch(e) {
+      if (!joy.active) return;
+      for (const t of e.changedTouches) {
+        if (t.identifier === joy.id) {
+          joy.active = false;
+          joy.id = null;
+          joy.dx = 0;
+          joy.dy = 0;
+        }
+      }
+    }
+    canvas.addEventListener('touchend', endTouch, { passive: true });
+    canvas.addEventListener('touchcancel', endTouch, { passive: true });
+
+    function resizeCanvas() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    function createUnit(cfg) {
+      return {
+        id: cfg.id || ('u_' + Math.random().toString(36).slice(2, 7)),
+        name: cfg.name,
+        kind: cfg.kind, // 'hero' | 'minion' | 'turret' | 'nexus' | 'monster' | 'boss' | 'clone'
+        team: cfg.team, // 'blue' | 'red' | 'neutral'
+        heroId: cfg.heroId || null,
+        isPlayer: !!cfg.isPlayer,
+        isRemote: !!cfg.isRemote,
+        icon: cfg.icon || '⚔️',
+        color: cfg.color || '#38bdf8',
+        x: cfg.x, y: cfg.y,
+        spawnX: cfg.x, spawnY: cfg.y,
+        r: cfg.r || 22,
+        hp: cfg.hp, maxHp: cfg.hp,
+        shield: 0,
+        atk: cfg.atk || 40,
+        spd: cfg.spd || 180,
+        range: cfg.range || 100,
+        ranged: !!cfg.ranged,
+        lv: cfg.lv || 1,
+        xp: 0,
+        nextXp: 120,
+        gold: cfg.gold || 0,
+        lifesteal: 0,
+        crit: 0.1,
+        cdr: 0,
+        atkCd: 0,
+        s1Cd: 0, s2Cd: 0, ultCd: 0, healCd: 0,
+        stunTimer: 0, slowTimer: 0, boostTimer: 0,
+        angle: 0,
+        alive: true,
+        respawnTimer: 0,
+        lifeTimer: cfg.lifeTimer || 0,
+        rewardGold: cfg.rewardGold || 40,
+        rewardXp: cfg.rewardXp || 45,
+        aiTimer: 0,
+        items: []
+      };
+    }
+
+    function announce(text) {
+      const el = document.getElementById('announceBanner');
+      el.textContent = text;
+      el.classList.add('show');
+      clearTimeout(window._annTimer);
+      window._annTimer = setTimeout(() => el.classList.remove('show'), 2100);
+    }
+
+    function addFloatText(x, y, text, color, size) {
+      if (!G) return;
+      G.floats.push({ x, y, text, color: color || '#ffffff', size: size || 14, life: 0.9, vy: -38 });
+    }
+
+    function addParticles(x, y, color, count, speed) {
+      if (!G) return;
+      for (let i = 0; i < count; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const s = (0.3 + Math.random() * 0.7) * (speed || 130);
+        G.particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, r: 2.5 + Math.random() * 4, color, life: 0.35 + Math.random() * 0.35, maxLife: 0.7 });
+      }
+    }
+
+    function addRingFx(x, y, maxR, color) {
+      if (!G) return;
+      G.rings.push({ x, y, r: 10, maxR, color, life: 0.42, maxLife: 0.42 });
+    }
+
+    function startMatch(mode, stageId, isMultiplayer) {
+      const heroDef = HEROES.find(h => h.id === save.selectedHero) || HEROES[0];
+      const stageDef = STAGES.find(s => s.id === stageId) || STAGES[0];
+
+      document.getElementById('lobbyScreen').style.display = 'none';
+      document.getElementById('gameScreen').classList.add('active');
+      document.getElementById('resultModal').classList.remove('show');
+      resizeCanvas();
+
+      const isWorld = (mode === 'openworld');
+      const mapW = isWorld ? 3400 : 2800;
+      const mapH = isWorld ? 3400 : 1700;
+
+      G = {
+        mode,
+        stage: stageDef,
+        isMp: !!isMultiplayer,
+        w: mapW, h: mapH,
+        time: 0,
+        blueKills: 0,
+        redKills: 0,
+        streak: 0,
+        streakTimer: 0,
+        waveTimer: 3,
+        radarOn: isPro(),
+        radarAngle: 0,
+        shake: 0,
+        camX: 0, camY: 0,
+        mpSendTimer: 0,
+        units: [],
+        projs: [],
+        particles: [],
+        rings: [],
+        floats: [],
+        bushes: [],
+        chests: [],
+        biomes: []
+      };
+
+      // Player spawn position
+      const pSpawnX = isWorld ? 650 : (isMultiplayer && !isMpHost ? mapW - 260 : 260);
+      const pSpawnY = isWorld ? 1700 : mapH / 2;
+      const pTeam = (isMultiplayer && !isMpHost && mode === 'arena') ? 'red' : 'blue';
+
+      const player = createUnit({
+        id: 'player',
+        name: heroDef.name,
+        kind: 'hero',
+        team: pTeam,
+        heroId: heroDef.id,
+        isPlayer: true,
+        icon: heroDef.icon,
+        color: heroDef.color,
+        x: pSpawnX, y: pSpawnY,
+        r: 23,
+        hp: heroDef.hp,
+        atk: heroDef.atk,
+        spd: heroDef.spd,
+        range: heroDef.range,
+        ranged: heroDef.ranged,
+        gold: isWorld ? 220 : 100
+      });
+      G.player = player;
+      G.units.push(player);
+
+      // Update Skill Icons
+      document.getElementById('icoS1').textContent = heroDef.s1.ico;
+      document.getElementById('icoS2').textContent = heroDef.s2.ico;
+      document.getElementById('icoUlt').textContent = heroDef.ult.ico;
+
+      // Sandbox Bar Visibility
+      document.getElementById('sandboxBar').classList.toggle('show', isWorld);
+
+      if (!isWorld) {
+        // ========== BUILD MOBA ARENA ==========
+        // Grass Bushes (stealth zones)
+        G.bushes = [
+          { x: 900, y: 420, r: 85 }, { x: 1900, y: 420, r: 85 },
+          { x: 900, y: 1280, r: 85 }, { x: 1900, y: 1280, r: 85 },
+          { x: 1400, y: 630, r: 75 }, { x: 1400, y: 1070, r: 75 }
+        ];
+
+        // Blue & Red Nexuses (Cores)
+        G.blueNexus = createUnit({ name: 'Blue Core', kind: 'nexus', team: 'blue', icon: '💠', color: '#38bdf8', x: 165, y: mapH / 2, r: 46, hp: 3200, atk: 75, range: 240, ranged: true, spd: 0 });
+        G.redNexus = createUnit({ name: 'Red Core', kind: 'nexus', team: 'red', icon: '🛑', color: '#ef4444', x: mapW - 165, y: mapH / 2, r: 46, hp: Math.round(3000 * stageDef.diff), atk: 75, range: 240, ranged: true, spd: 0 });
+        G.units.push(G.blueNexus, G.redNexus);
+
+        // Turrets (2 Blue + 2 Red)
+        const tHp = Math.round(1450 * (0.85 + stageDef.diff * 0.25));
+        G.units.push(
+          createUnit({ name: 'Blue Turret', kind: 'turret', team: 'blue', icon: '🗼', color: '#38bdf8', x: 560, y: mapH / 2 - 220, r: 30, hp: tHp, atk: 65, range: 235, ranged: true, spd: 0, rewardGold: 160 }),
+          createUnit({ name: 'Blue Turret', kind: 'turret', team: 'blue', icon: '🗼', color: '#38bdf8', x: 980, y: mapH / 2, r: 30, hp: tHp, atk: 65, range: 235, ranged: true, spd: 0, rewardGold: 160 }),
+          createUnit({ name: 'Red Turret', kind: 'turret', team: 'red', icon: '🗼', color: '#ef4444', x: mapW - 560, y: mapH / 2 + 220, r: 30, hp: tHp, atk: 65, range: 235, ranged: true, spd: 0, rewardGold: 180 }),
+          createUnit({ name: 'Red Turret', kind: 'turret', team: 'red', icon: '🗼', color: '#ef4444', x: mapW - 980, y: mapH / 2, r: 30, hp: tHp, atk: 65, range: 235, ranged: true, spd: 0, rewardGold: 180 })
+        );
+
+        // Jungle Monsters + Mythic Lord Boss
+        G.units.push(
+          createUnit({ name: 'Blue Buff', kind: 'monster', team: 'neutral', icon: '🐻', color: '#38bdf8', x: 1120, y: 260, r: 24, hp: 700, atk: 35, range: 75, spd: 120, rewardGold: 130, rewardXp: 110 }),
+          createUnit({ name: 'Red Buff', kind: 'monster', team: 'neutral', icon: '🐺', color: '#fb923c', x: 1680, y: 1440, r: 24, hp: 700, atk: 38, range: 75, spd: 130, rewardGold: 130, rewardXp: 110 }),
+          createUnit({ name: 'Mythic Lord', kind: 'boss', team: 'neutral', icon: '🐉', color: '#facc15', x: mapW / 2, y: 230, r: 38, hp: Math.round(2400 * stageDef.diff), atk: 78, range: 120, spd: 110, rewardGold: 420, rewardXp: 350 })
+        );
+
+        // Spawn AI Heroes (or Multiplayer Opponent)
+        if (isMultiplayer) {
+          const remoteTeam = pTeam === 'blue' ? 'red' : 'blue';
+          const rx = remoteTeam === 'blue' ? 260 : mapW - 260;
+          G.remoteUnit = createUnit({
+            id: 'remote_friend', name: 'Friend', kind: 'hero', team: remoteTeam,
+            isRemote: true, icon: '⚡', color: remoteTeam === 'blue' ? '#38bdf8' : '#f43f5e',
+            x: rx, y: mapH / 2, r: 23, hp: 1050, atk: 75, spd: 225, range: 130
+          });
+          G.units.push(G.remoteUnit);
+        } else {
+          const pool = HEROES.filter(h => h.id !== heroDef.id);
+          // Ally bots
+          for (let i = 1; i < stageDef.teamSize; i++) {
+            const ah = pool[(i + 1) % pool.length];
+            G.units.push(createUnit({
+              name: ah.name + ' (Ally)', kind: 'hero', team: 'blue', heroId: ah.id,
+              icon: ah.icon, color: '#60a5fa',
+              x: 260, y: mapH / 2 + (i % 2 === 0 ? 110 : -110),
+              r: 22, hp: ah.hp * 0.92, atk: ah.atk * 0.88, spd: ah.spd * 0.95, range: ah.range, ranged: ah.ranged,
+              rewardGold: 150, rewardXp: 140
+            }));
+          }
+          // Enemy AI Heroes
+          for (let i = 0; i < stageDef.teamSize; i++) {
+            const eh = pool[i % pool.length];
+            G.units.push(createUnit({
+              name: eh.name + ' Bot', kind: 'hero', team: 'red', heroId: eh.id,
+              icon: eh.icon, color: '#f43f5e',
+              x: mapW - 260, y: mapH / 2 + (i - 1) * 110,
+              r: 22, hp: Math.round(eh.hp * stageDef.diff), atk: Math.round(eh.atk * stageDef.diff), spd: eh.spd * 0.94, range: eh.range, ranged: eh.ranged,
+              rewardGold: 210, rewardXp: 180
+            }));
+          }
+        }
+      } else {
+        // ========== BUILD OPEN WORLD SANDBOX (5 BIOMES) ==========
+        G.biomes = [
+          { name: '🏘️ Safe Village', x: 650, y: 1700, r: 420, fill: 'rgba(16,185,129,0.12)', stroke: '#10b981' },
+          { name: '🌲 Emerald Forest', x: 1650, y: 720, r: 580, fill: 'rgba(34,197,94,0.12)', stroke: '#22c55e' },
+          { name: '🌋 Crimson Volcano', x: 2720, y: 1700, r: 540, fill: 'rgba(239,68,68,0.14)', stroke: '#ef4444' },
+          { name: '🏛️ Golden Ruins', x: 1650, y: 2720, r: 540, fill: 'rgba(250,204,21,0.11)', stroke: '#facc15' },
+          { name: '⚔️ Duel Ring', x: 2680, y: 680, r: 380, fill: 'rgba(168,85,247,0.13)', stroke: '#a855f7' }
+        ];
+
+        G.bushes = [
+          { x: 1450, y: 600, r: 80 }, { x: 1820, y: 820, r: 90 },
+          { x: 1520, y: 2560, r: 85 }, { x: 2480, y: 1500, r: 75 }
+        ];
+
+        // Treasure Chests scattered across Open World
+        const chestPts = [
+          [1400, 740], [1880, 560], [1650, 2720], [1420, 2860], [1920, 2600],
+          [2680, 1450], [2850, 1980], [2680, 680], [950, 1180], [1040, 2240]
+        ];
+        chestPts.forEach((pt, idx) => {
+          G.chests.push({ id: idx, x: pt[0], y: pt[1], open: false, respawn: 0, gold: 130 + idx * 15 });
+        });
+
+        // Safe Village Healing Fountain & Ally Defender
+        G.fountain = { x: 650, y: 1700, r: 120 };
+
+        // Roaming Monsters + World Dragon Boss + Rival Heroes
+        const spawns = [
+          { name: 'Forest Wolf', kind: 'monster', icon: '🐺', color: '#fb923c', x: 1560, y: 680, hp: 560, atk: 34, gold: 95 },
+          { name: 'Goblin Raider', kind: 'monster', icon: '👺', color: '#ef4444', x: 1790, y: 810, hp: 620, atk: 38, gold: 105 },
+          { name: 'Forest Golem', kind: 'monster', icon: '🗿', color: '#94a3b8', x: 1620, y: 460, hp: 980, atk: 46, gold: 150 },
+          { name: 'Ruins Guardian', kind: 'monster', icon: '🤖', color: '#facc15', x: 1640, y: 2650, hp: 1150, atk: 52, gold: 190 },
+          { name: 'Magma Beast', kind: 'monster', icon: '🔥', color: '#f97316', x: 2560, y: 1600, hp: 1350, atk: 60, gold: 220 },
+          { name: 'Duel Champion', kind: 'hero', icon: '🥷', color: '#c084fc', x: 2680, y: 680, hp: 1650, atk: 74, gold: 320 },
+          { name: 'INFERNO DRAGON', kind: 'boss', icon: '🐉', color: '#f43f5e', x: 2780, y: 1720, hp: 3800, atk: 92, gold: 650 }
+        ];
+        spawns.forEach(sp => {
+          G.units.push(createUnit({
+            name: sp.name, kind: sp.kind, team: 'red', icon: sp.icon, color: sp.color,
+            x: sp.x, y: sp.y, r: sp.kind === 'boss' ? 40 : 23,
+            hp: sp.hp, atk: sp.atk, spd: sp.kind === 'boss' ? 135 : 165,
+            range: sp.kind === 'boss' ? 140 : 85, rewardGold: sp.gold, rewardXp: Math.round(sp.gold * 0.9)
+          }));
+        });
+
+        // Co-op Friend in Open World
+        if (isMultiplayer) {
+          G.remoteUnit = createUnit({
+            id: 'remote_friend', name: 'Friend (Co-op)', kind: 'hero', team: 'blue',
+            isRemote: true, icon: '⚡', color: '#38bdf8',
+            x: 720, y: 1700, r: 23, hp: 1100, atk: 80, spd: 230, range: 130
+          });
+          G.units.push(G.remoteUnit);
+        }
+      }
+
+      updateRadarButtonUI();
+      announce(isWorld ? '🌍 OPEN WORLD SANDBOX!' : `⚔️ STAGE ${stageDef.id}: ${stageDef.name.toUpperCase()}`);
+      playSfx('skill');
+
+      gameRunning = true;
+      lastTime = performance.now();
+      rafId = requestAnimationFrame(gameLoop);
+    }
+
+    function updateRadarButtonUI() {
+      const btn = document.getElementById('toggleRadarBtn');
+      const strip = document.getElementById('radarHudStrip');
+      if (!isPro()) {
+        btn.textContent = '🔒 RADAR';
+        btn.classList.remove('radar-on');
+        strip.classList.remove('show');
+      } else {
+        btn.textContent = G && G.radarOn ? '📡 RADAR ON' : '📡 RADAR OFF';
+        btn.classList.toggle('radar-on', !!(G && G.radarOn));
+        strip.classList.toggle('show', !!(G && G.radarOn));
+      }
+    }
+
+    document.getElementById('toggleRadarBtn').addEventListener('click', () => {
+      if (!isPro()) {
+        showToast('📡 Pro Enemy Distance Radar sirf Premium/Owner ke liye hai!');
+        return;
+      }
+      if (!G) return;
+      G.radarOn = !G.radarOn;
+      updateRadarButtonUI();
+    });
+
+    // Open World Sandbox Buttons
+    document.getElementById('sbBuildTurret').addEventListener('click', () => {
+      if (!G || G.mode !== 'openworld') return;
+      const p = G.player;
+      if (p.gold < 150) { showToast('Turret ke liye 150 Gold chahiye!'); return; }
+      p.gold -= 150;
+      G.units.push(createUnit({
+        name: 'My Turret', kind: 'turret', team: 'blue', icon: '🗼', color: '#38bdf8',
+        x: p.x + Math.cos(p.angle) * 55, y: p.y + Math.sin(p.angle) * 55,
+        r: 26, hp: 1100, atk: 62, range: 250, ranged: true, spd: 0
+      }));
+      addRingFx(p.x, p.y, 70, '#38bdf8');
+      playSfx('coin');
+      showToast('🗼 Defense Turret ban gaya!');
+    });
+
+    document.getElementById('sbSpawnAlly').addEventListener('click', () => {
+      if (!G || G.mode !== 'openworld') return;
+      const p = G.player;
+      if (p.gold < 200) { showToast('Ally Guard ke liye 200 Gold chahiye!'); return; }
+      p.gold -= 200;
+      G.units.push(createUnit({
+        name: 'Ally Knight', kind: 'hero', team: 'blue', icon: '🛡️', color: '#34d399',
+        x: p.x + 45, y: p.y + 45, r: 20, hp: 900, atk: 58, spd: 205, range: 90
+      }));
+      playSfx('skill');
+      showToast('🤖 Ally Guard aapke saath ladega!');
+    });
+
+    document.getElementById('sbProBoss').addEventListener('click', () => {
+      if (!isPro()) { showToast('👑 Pro / Owner Sandbox Power!'); return; }
+      if (!G) return;
+      const p = G.player;
+      G.units.push(createUnit({
+        name: 'MYTHIC DRAGON', kind: 'boss', team: 'red', icon: '🐉', color: '#facc15',
+        x: Math.min(G.w - 150, p.x + 280), y: p.y,
+        r: 42, hp: 3200, atk: 88, spd: 145, range: 135, rewardGold: 600, rewardXp: 500
+      }));
+      announce('🐉 MYTHIC DRAGON SPAWNED!');
+      playSfx('ult');
+    });
+
+    let biomeTpIdx = 0;
+    document.getElementById('sbProTp').addEventListener('click', () => {
+      if (!isPro()) { showToast('👑 Pro / Owner Teleport Power!'); return; }
+      if (!G || !G.biomes.length) return;
+      biomeTpIdx = (biomeTpIdx + 1) % G.biomes.length;
+      const b = G.biomes[biomeTpIdx];
+      G.player.x = b.x;
+      G.player.y = b.y;
+      addRingFx(b.x, b.y, 110, '#38bdf8');
+      playSfx('skill');
+      showToast('⚡ Teleport: ' + b.name);
+    });
+
+    document.getElementById('sbProGod').addEventListener('click', () => {
+      if (!isPro()) { showToast('👑 Pro / Owner God Power!'); return; }
+      if (!G) return;
+      G.player.hp = G.player.maxHp;
+      G.player.boostTimer = 8;
+      G.player.gold += 300;
+      addRingFx(G.player.x, G.player.y, 100, '#facc15');
+      playSfx('levelup');
+      showToast('✨ Full HP + Speed Boost + 300 Gold!');
+    });
+
+    /* ================================================================
+       COMBAT, SKILLS & PROJECTION LOGIC
+       ================================================================ */
+    function isEnemy(a, b) {
+      if (!a || !b || !a.alive || !b.alive || a.id === b.id) return false;
+      if (a.team === 'neutral' || b.team === 'neutral') return a.team !== b.team;
+      return a.team !== b.team;
+    }
+
+    function findNearestEnemy(unit, maxDist) {
+      let best = null;
+      let bestD = maxDist;
+      for (const u of G.units) {
+        if (!isEnemy(unit, u)) continue;
+        // Neutral monsters only aggro player/bots if close or targeted by player
+        const d = Math.hypot(u.x - unit.x, u.y - unit.y);
+        if (d < bestD) {
+          bestD = d;
+          best = u;
+        }
+      }
+      return best;
+    }
+
+    function grantXpGold(killer, victim) {
+      if (!killer || killer.kind !== 'hero') return;
+      killer.gold += victim.rewardGold || 40;
+      killer.xp += victim.rewardXp || 45;
+      while (killer.xp >= killer.nextXp && killer.lv < 15) {
+        killer.xp -= killer.nextXp;
+        killer.lv++;
+        killer.nextXp = Math.round(killer.nextXp * 1.32);
+        killer.maxHp += 115;
+        killer.hp = Math.min(killer.maxHp, killer.hp + 180);
+        killer.atk += 12;
+        if (killer.isPlayer) {
+          addRingFx(killer.x, killer.y, 90, '#facc15');
+          addFloatText(killer.x, killer.y - 36, 'LEVEL UP! Lv.' + killer.lv, '#facc15', 16);
+          playSfx('levelup');
+        }
+      }
+    }
+
+    function damageUnit(target, rawDmg, attacker) {
+      if (!target || !target.alive) return;
+      let dmg = Math.round(rawDmg);
+      let isCrit = false;
+      if (attacker && Math.random() < (attacker.crit || 0)) {
+        dmg = Math.round(dmg * 1.55);
+        isCrit = true;
+      }
+
+      if (target.shield > 0) {
+        const absorb = Math.min(target.shield, dmg);
+        target.shield -= absorb;
+        dmg -= absorb;
+      }
+      target.hp -= dmg;
+
+      // Lifesteal
+      if (attacker && attacker.lifesteal > 0 && dmg > 0) {
+        attacker.hp = Math.min(attacker.maxHp, attacker.hp + Math.round(dmg * attacker.lifesteal));
+      }
+
+      // Send hit to Multiplayer Friend if we hit their unit
+      if (G.isMp && mpConn && mpConn.open && attacker && attacker.isPlayer && target.isRemote) {
+        mpConn.send({ type: 'hit_remote', dmg });
+      }
+
+      addFloatText(
+        target.x + (Math.random() * 20 - 10),
+        target.y - target.r - 8,
+        (isCrit ? 'CRIT! ' : '') + '-' + dmg,
+        isCrit ? '#facc15' : (target.isPlayer ? '#f87171' : '#ffffff'),
+        isCrit ? 16 : 13
+      );
+      addParticles(target.x, target.y, target.color, isCrit ? 10 : 5, 110);
+
+      if (target.hp <= 0) {
+        target.hp = 0;
+        target.alive = false;
+        addParticles(target.x, target.y, target.color, 22, 200);
+        addRingFx(target.x, target.y, 85, '#f43f5e');
+
+        if (attacker) grantXpGold(attacker, target);
+
+        if (target.kind === 'nexus') {
+          const won = (target.team !== G.player.team);
+          endMatch(won);
+          return;
+        }
+
+        if (target.kind === 'turret') {
+          announce('🗼 TURRET DESTROYED!');
+          G.shake = 10;
+          playSfx('ult');
+        } else if (target.kind === 'boss') {
+          announce('🐉 BOSS SLAIN! +GOLD & BUFF!');
+          G.shake = 12;
+          playSfx('kill');
+          if (attacker && attacker.kind === 'hero') {
+            attacker.atk += 25;
+            attacker.hp = attacker.maxHp;
+          }
+          target.respawnTimer = 45;
+        } else if (target.kind === 'hero') {
+          target.respawnTimer = 6 + target.lv * 0.6;
+          if (target.team === 'red') G.blueKills++;
+          else G.redKills++;
+
+          if (attacker && attacker.isPlayer) {
+            save.kills++;
+            G.streak++;
+            G.streakTimer = 8;
+            const labels = ['', '⚔️ ENEMY SLAIN!', '🔥 DOUBLE KILL!', '⚡ TRIPLE KILL!', '👑 SAVAGE!!'];
+            announce(G.blueKills === 1 && G.redKills === 0 ? '🩸 FIRST BLOOD!' : (labels[Math.min(4, G.streak)] || '👑 UNSTOPPABLE!'));
+            playSfx('kill');
+          } else if (target.isPlayer) {
+            announce('💀 YOU WERE SLAIN! (Respawning...)');
+            playSfx('hit');
+          }
+        } else if (target.kind === 'monster') {
+          target.respawnTimer = 24;
+        }
+      }
+    }
+
+    function fireProjectile(attacker, targetX, targetY, dmg, color, speed, radius, extra) {
+      const ang = Math.atan2(targetY - attacker.y, targetX - attacker.x);
+      G.projs.push({
+        x: attacker.x, y: attacker.y,
+        vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed,
+        dmg, color, r: radius || 7,
+        team: attacker.team, attacker,
+        life: extra && extra.life ? extra.life : 1.1,
+        pierce: !!(extra && extra.pierce),
+        stun: (extra && extra.stun) || 0,
+        slow: (extra && extra.slow) || 0,
+        hitSet: new Set()
+      });
+    }
+
+    function doBasicAttack() {
+      if (!G || !G.player || !G.player.alive || G.player.atkCd > 0 || G.player.stunTimer > 0) return;
+      const p = G.player;
+      const tgt = findNearestEnemy(p, p.range + 120);
+      p.atkCd = 0.42;
+
+      if (tgt) p.angle = Math.atan2(tgt.y - p.y, tgt.x - p.x);
+      playSfx('hit');
+
+      if (p.ranged) {
+        const tx = tgt ? tgt.x : p.x + Math.cos(p.angle) * p.range;
+        const ty = tgt ? tgt.y : p.y + Math.sin(p.angle) * p.range;
+        fireProjectile(p, tx, ty, p.atk, p.color, 540, 7, { life: 0.72 });
+      } else {
+        addRingFx(p.x + Math.cos(p.angle) * 28, p.y + Math.sin(p.angle) * 28, p.range * 0.72, p.color);
+        for (const u of G.units) {
+          if (!isEnemy(p, u)) continue;
+          if (Math.hypot(u.x - p.x, u.y - p.y) <= p.range + u.r) {
+            damageUnit(u, p.atk, p);
+          }
+        }
+      }
+    }
+
+    function castSkill(slot) {
+      if (!G || !G.player || !G.player.alive || G.player.stunTimer > 0) return;
+      const p = G.player;
+      const hd = HEROES.find(h => h.id === p.heroId) || HEROES[0];
+      const cdMult = 1 - p.cdr;
+
+      if (slot === 3 && p.lv < 4 && G.mode === 'arena') {
+        showToast('🔥 Ultimate Level 4 par unlock hoga!');
+        return;
+      }
+      if (slot === 1 && p.s1Cd > 0) return;
+      if (slot === 2 && p.s2Cd > 0) return;
+      if (slot === 3 && p.ultCd > 0) return;
+
+      const tgt = findNearestEnemy(p, 380);
+      if (tgt) p.angle = Math.atan2(tgt.y - p.y, tgt.x - p.x);
+
+      if (slot === 1) {
+        p.s1Cd = hd.s1.cd * cdMult;
+        playSfx('skill');
+        if (hd.id === 'vajra' || hd.id === 'shadow') {
+          // Dash / Blink Strike
+          const dist = hd.id === 'shadow' && tgt ? Math.min(240, Math.hypot(tgt.x - p.x, tgt.y - p.y)) : 165;
+          p.x = Math.max(40, Math.min(G.w - 40, p.x + Math.cos(p.angle) * dist));
+          p.y = Math.max(40, Math.min(G.h - 40, p.y + Math.sin(p.angle) * dist));
+          addRingFx(p.x, p.y, 110, hd.color);
+          for (const u of G.units) {
+            if (isEnemy(p, u) && Math.hypot(u.x - p.x, u.y - p.y) < 125 + u.r) {
+              damageUnit(u, p.atk * (hd.id === 'shadow' ? 2.1 : 1.65), p);
+            }
+          }
+        } else if (hd.id === 'asha' || hd.id === 'dragon') {
+          // Multi-shot fan
+          const count = hd.id === 'dragon' ? 5 : 3;
+          for (let i = 0; i < count; i++) {
+            const spread = (i - (count - 1) / 2) * 0.19;
+            const tx = p.x + Math.cos(p.angle + spread) * 300;
+            const ty = p.y + Math.sin(p.angle + spread) * 300;
+            fireProjectile(p, tx, ty, p.atk * 1.15, hd.color, 580, hd.id === 'dragon' ? 10 : 7, { life: 0.8 });
+          }
+        } else {
+          // Arcane Orb / Tremor Slam
+          const tx = tgt ? tgt.x : p.x + Math.cos(p.angle) * 280;
+          const ty = tgt ? tgt.y : p.y + Math.sin(p.angle) * 280;
+          fireProjectile(p, tx, ty, p.atk * 1.85, hd.color, 460, 14, { life: 0.9, pierce: true });
+        }
+      } else if (slot === 2) {
+        p.s2Cd = hd.s2.cd * cdMult;
+        playSfx('skill');
+        if (hd.id === 'shadow') {
+          // Spawn real fighting Shadow Clone!
+          G.units.push(createUnit({
+            name: 'Shadow Clone', kind: 'clone', team: p.team, icon: '👥', color: '#fb7185',
+            x: p.x + 35, y: p.y - 35, r: 18, hp: p.maxHp * 0.55, atk: p.atk * 0.72, spd: 255, range: 95, lifeTimer: 9
+          }));
+          addRingFx(p.x, p.y, 95, '#fb7185');
+        } else if (hd.id === 'titan') {
+          p.shield += 450;
+          p.hp = Math.min(p.maxHp, p.hp + 200);
+          addRingFx(p.x, p.y, 130, '#f59e0b');
+          addFloatText(p.x, p.y - 30, '+450 SHIELD', '#facc15', 14);
+        } else if (hd.id === 'dragon') {
+          p.boostTimer = 4.5;
+          addRingFx(p.x, p.y, 155, '#f97316');
+          for (const u of G.units) {
+            if (isEnemy(p, u) && Math.hypot(u.x - p.x, u.y - p.y) < 165 + u.r) {
+              damageUnit(u, p.atk * 1.6, p);
+            }
+          }
+        } else {
+          // Whirlwind / Frost / Thunder Nova
+          addRingFx(p.x, p.y, 165, hd.color);
+          for (const u of G.units) {
+            if (isEnemy(p, u) && Math.hypot(u.x - p.x, u.y - p.y) < 170 + u.r) {
+              damageUnit(u, p.atk * 1.75, p);
+              if (hd.id === 'kael') u.stunTimer = 1.4;
+              if (hd.id === 'asha') u.slowTimer = 2.5;
+            }
+          }
+        }
+      } else if (slot === 3) {
+        p.ultCd = hd.ult.cd * cdMult;
+        G.shake = 13;
+        playSfx('ult');
+        announce(`🔥 ${hd.ult.name.toUpperCase()}!`);
+        const cx = tgt ? tgt.x : p.x + Math.cos(p.angle) * 140;
+        const cy = tgt ? tgt.y : p.y + Math.sin(p.angle) * 140;
+        addRingFx(cx, cy, 235, '#facc15');
+        addRingFx(cx, cy, 170, hd.color);
+        addParticles(cx, cy, '#facc15', 32, 260);
+        for (const u of G.units) {
+          if (isEnemy(p, u) && Math.hypot(u.x - cx, u.y - cy) < 235 + u.r) {
+            damageUnit(u, p.atk * 3.1, p);
+            u.stunTimer = Math.max(u.stunTimer, 1.6);
+          }
+        }
+      }
+    }
+
+    function castHeal() {
+      if (!G || !G.player || !G.player.alive || G.player.healCd > 0) return;
+      const p = G.player;
+      p.healCd = 14;
+      const amt = Math.round(p.maxHp * 0.34);
+      p.hp = Math.min(p.maxHp, p.hp + amt);
+      addRingFx(p.x, p.y, 85, '#34d399');
+      addFloatText(p.x, p.y - 32, '+' + amt + ' HP', '#34d399', 15);
+      playSfx('coin');
+    }
+
+    document.getElementById('btnAtk').addEventListener('touchstart', (e) => { e.preventDefault(); doBasicAttack(); });
+    document.getElementById('btnAtk').addEventListener('click', doBasicAttack);
+    document.getElementById('btnS1').addEventListener('touchstart', (e) => { e.preventDefault(); castSkill(1); });
+    document.getElementById('btnS1').addEventListener('click', () => castSkill(1));
+    document.getElementById('btnS2').addEventListener('touchstart', (e) => { e.preventDefault(); castSkill(2); });
+    document.getElementById('btnS2').addEventListener('click', () => castSkill(2));
+    document.getElementById('btnUlt').addEventListener('touchstart', (e) => { e.preventDefault(); castSkill(3); });
+    document.getElementById('btnUlt').addEventListener('click', () => castSkill(3));
+    document.getElementById('btnHeal').addEventListener('touchstart', (e) => { e.preventDefault(); castHeal(); });
+    document.getElementById('btnHeal').addEventListener('click', castHeal);
+
+    /* ================================================================
+       IN-MATCH ITEM SHOP
+       ================================================================ */
+    const shopModal = document.getElementById('shopModal');
+    function openShop() {
+      if (!G) return;
+      const p = G.player;
+      document.getElementById('shopGoldDisplay').textContent = '🪙 ' + Math.floor(p.gold);
+      document.getElementById('shopGrid').innerHTML = SHOP_ITEMS.map(it => {
+        const owned = p.items.includes(it.id);
+        const locked = it.pro && !isPro();
+        return `
+          <button type="button" class="shop-item ${owned ? 'owned' : ''} ${it.pro ? 'pro-item' : ''}" data-item="${it.id}">
+            <div style="font-size:13px;font-weight:900;">${it.ico} ${it.name} ${it.pro ? (locked ? '🔒' : '⭐') : ''}</div>
+            <div style="font-size:11px;color:#94a3b8;margin:3px 0;">${it.desc}</div>
+            <div style="font-size:12px;font-weight:900;color:${owned ? '#34d399' : '#facc15'};">${owned ? '✅ Khareed Liya' : '🪙 ' + it.cost}</div>
+          </button>
+        `;
+      }).join('');
+
+      document.querySelectorAll('#shopGrid .shop-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const it = SHOP_ITEMS.find(x => x.id === btn.dataset.item);
+          if (p.items.includes(it.id)) return;
+          if (it.pro && !isPro()) { showToast('👑 Yeh Pro Mythic Weapon hai!'); return; }
+          if (p.gold < it.cost) { showToast('Gold kam hai! Minions ya Enemy maarein.'); return; }
+          p.gold -= it.cost;
+          p.items.push(it.id);
+          it.apply(p);
+          playSfx('coin');
+          showToast(`✅ ${it.name} equipped!`);
+          openShop();
+        });
+      });
+      shopModal.classList.add('show');
+    }
+
+    document.getElementById('openShopBtn').addEventListener('click', openShop);
+    document.getElementById('closeShopBtn').addEventListener('click', () => shopModal.classList.remove('show'));
+
+    /* ================================================================
+       MAIN UPDATE LOOP
+       ================================================================ */
+    function spawnMinionWave() {
+      const my = G.h / 2;
+      for (let i = 0; i < 3; i++) {
+        const dy = (i - 1) * 44;
+        G.units.push(
+          createUnit({ name: 'Blue Minion', kind: 'minion', team: 'blue', icon: '🔹', color: '#60a5fa', x: 320 + i * 25, y: my + dy, r: 13, hp: 240, atk: 22, spd: 125, range: 65, rewardGold: 32, rewardXp: 35 }),
+          createUnit({ name: 'Red Minion', kind: 'minion', team: 'red', icon: '🔸', color: '#fb7185', x: G.w - 320 - i * 25, y: my + dy, r: 13, hp: 240, atk: 22, spd: 125, range: 65, rewardGold: 32, rewardXp: 35 })
+        );
+      }
+    }
+
+    function updateGame(dt) {
+      G.time += dt;
+      G.radarAngle = (G.radarAngle + dt * 2.4) % (Math.PI * 2);
+      if (G.shake > 0) G.shake = Math.max(0, G.shake - dt * 28);
+      if (G.streakTimer > 0) {
+        G.streakTimer -= dt;
+        if (G.streakTimer <= 0) G.streak = 0;
+      }
+
+      // Passive gold trickle
+      if (G.player.alive) G.player.gold += dt * 4.5;
+
+      // Minion Waves in MOBA Arena
+      if (G.mode === 'arena') {
+        G.waveTimer -= dt;
+        if (G.waveTimer <= 0) {
+          G.waveTimer = 17;
+          spawnMinionWave();
+        }
+      }
+
+      // Open World Chests & Healing Fountain
+      if (G.mode === 'openworld') {
+        const p = G.player;
+        if (p.alive && G.fountain && Math.hypot(p.x - G.fountain.x, p.y - G.fountain.y) < G.fountain.r) {
+          p.hp = Math.min(p.maxHp, p.hp + dt * 190);
+        }
+        for (const ch of G.chests) {
+          if (ch.open) {
+            ch.respawn -= dt;
+            if (ch.respawn <= 0) ch.open = false;
+          } else if (p.alive && Math.hypot(p.x - ch.x, p.y - ch.y) < 44) {
+            ch.open = true;
+            ch.respawn = 35;
+            p.gold += ch.gold;
+            p.xp += 85;
+            addFloatText(ch.x, ch.y - 20, '+' + ch.gold + ' GOLD 💎', '#facc15', 15);
+            addParticles(ch.x, ch.y, '#facc15', 16, 150);
+            playSfx('coin');
+          }
+        }
+      }
+
+      // Player Movement (Joystick + Keyboard)
+      const p = G.player;
+      if (p.alive && p.stunTimer <= 0) {
+        let mx = joy.dx;
+        let my = joy.dy;
+        if (keys['w'] || keys['arrowup']) my -= 1;
+        if (keys['s'] || keys['arrowdown']) my += 1;
+        if (keys['a'] || keys['arrowleft']) mx -= 1;
+        if (keys['d'] || keys['arrowright']) mx += 1;
+        const mag = Math.hypot(mx, my);
+        if (mag > 0.05) {
+          const nx = mx / Math.max(1, mag);
+          const ny = my / Math.max(1, mag);
+          const curSpd = p.spd * (p.slowTimer > 0 ? 0.55 : 1) * (p.boostTimer > 0 ? 1.5 : 1);
+          p.x = Math.max(30, Math.min(G.w - 30, p.x + nx * curSpd * dt));
+          p.y = Math.max(30, Math.min(G.h - 30, p.y + ny * curSpd * dt));
+          p.angle = Math.atan2(ny, nx);
+        }
+      }
+
+      // Sync Multiplayer P2P State (20Hz)
+      if (G.isMp && mpConn && mpConn.open) {
+        G.mpSendTimer -= dt;
+        if (G.mpSendTimer <= 0) {
+          G.mpSendTimer = 0.05;
+          mpConn.send({
+            type: 'state',
+            x: Math.round(p.x), y: Math.round(p.y),
+            hp: Math.round(p.hp), maxHp: Math.round(p.maxHp),
+            alive: p.alive, angle: p.angle, icon: p.icon, name: p.name
+          });
+        }
+        if (remotePlayerState && G.remoteUnit) {
+          G.remoteUnit.x += (remotePlayerState.x - G.remoteUnit.x) * Math.min(1, dt * 16);
+          G.remoteUnit.y += (remotePlayerState.y - G.remoteUnit.y) * Math.min(1, dt * 16);
+          G.remoteUnit.hp = remotePlayerState.hp;
+          G.remoteUnit.maxHp = remotePlayerState.maxHp;
+          G.remoteUnit.alive = remotePlayerState.alive;
+          G.remoteUnit.angle = remotePlayerState.angle;
+          G.remoteUnit.icon = remotePlayerState.icon || '⚡';
+          G.remoteUnit.name = remotePlayerState.name || 'Friend';
+        }
+      }
+
+      // Update All Units (Cooldowns, Respawn, AI)
+      for (let i = G.units.length - 1; i >= 0; i--) {
+        const u = G.units[i];
+        if (u.atkCd > 0) u.atkCd -= dt;
+        if (u.s1Cd > 0) u.s1Cd -= dt;
+        if (u.s2Cd > 0) u.s2Cd -= dt;
+        if (u.ultCd > 0) u.ultCd -= dt;
+        if (u.healCd > 0) u.healCd -= dt;
+        if (u.stunTimer > 0) u.stunTimer -= dt;
+        if (u.slowTimer > 0) u.slowTimer -= dt;
+        if (u.boostTimer > 0) u.boostTimer -= dt;
+
+        if (u.lifeTimer > 0) {
+          u.lifeTimer -= dt;
+          if (u.lifeTimer <= 0) { G.units.splice(i, 1); continue; }
+        }
+
+        if (!u.alive) {
+          if (u.kind === 'minion' || u.kind === 'clone' || u.kind === 'turret') {
+            G.units.splice(i, 1);
+            continue;
+          }
+          if (u.respawnTimer > 0) {
+            u.respawnTimer -= dt;
+            if (u.respawnTimer <= 0) {
+              u.alive = true;
+              u.hp = u.maxHp;
+              u.x = u.spawnX;
+              u.y = u.spawnY;
+              addRingFx(u.x, u.y, 70, u.color);
+            }
+          }
+          continue;
+        }
+
+        // Base Regen for heroes in Arena
+        if (u.kind === 'hero' && G.mode === 'arena') {
+          const baseDist = Math.hypot(u.x - u.spawnX, u.y - u.spawnY);
+          if (baseDist < 170) u.hp = Math.min(u.maxHp, u.hp + dt * 150);
+        }
+
+        if (u.isPlayer || u.isRemote || u.stunTimer > 0) continue;
+
+        // AI Behavior
+        if (u.kind === 'turret' || u.kind === 'nexus') {
+          const tgt = findNearestEnemy(u, u.range);
+          if (tgt && u.atkCd <= 0) {
+            u.atkCd = 1.05;
+            fireProjectile(u, tgt.x, tgt.y, u.atk, u.team === 'blue' ? '#38bdf8' : '#f87171', 500, 9, { life: 0.7 });
+          }
+          continue;
+        }
+
+        // Moving AI (Minions, Monsters, Bosses, Ally/Enemy Heroes, Clones)
+        const aggroRange = (u.kind === 'monster' || u.kind === 'boss') ? 340 : 480;
+        let tgt = findNearestEnemy(u, aggroRange);
+
+        // Retreat if AI hero low HP in Arena
+        const retreating = (u.kind === 'hero' && G.mode === 'arena' && u.hp < u.maxHp * 0.26);
+        let goalX = u.spawnX, goalY = u.spawnY;
+
+        if (retreating) {
+          goalX = u.spawnX; goalY = u.spawnY;
+        } else if (tgt) {
+          goalX = tgt.x; goalY = tgt.y;
+        } else if (G.mode === 'arena' && u.team !== 'neutral') {
+          // March toward enemy nexus
+          goalX = u.team === 'blue' ? G.w - 180 : 180;
+          goalY = G.h / 2;
+        } else if (G.mode === 'openworld' && u.team === 'blue') {
+          // Follow player in Open World!
+          goalX = p.x + 65; goalY = p.y + 65;
+        }
+
+        const distGoal = Math.hypot(goalX - u.x, goalY - u.y);
+        const stopDist = (tgt && !retreating) ? Math.max(u.range * 0.85, u.r + tgt.r + 6) : 25;
+
+        if (distGoal > stopDist) {
+          const spd = u.spd * (u.slowTimer > 0 ? 0.55 : 1);
+          u.angle = Math.atan2(goalY - u.y, goalX - u.x);
+          u.x = Math.max(30, Math.min(G.w - 30, u.x + Math.cos(u.angle) * spd * dt));
+          u.y = Math.max(30, Math.min(G.h - 30, u.y + Math.sin(u.angle) * spd * dt));
+        }
+
+        if (tgt && !retreating && Math.hypot(tgt.x - u.x, tgt.y - u.y) <= u.range + tgt.r + 14 && u.atkCd <= 0) {
+          u.atkCd = u.kind === 'hero' ? 0.82 : 1.05;
+          if (u.ranged || u.kind === 'boss') {
+            fireProjectile(u, tgt.x, tgt.y, u.atk, u.color, 440, u.kind === 'boss' ? 12 : 7, { life: 0.8 });
+          } else {
+            damageUnit(tgt, u.atk, u);
+          }
+          // AI Hero periodic skill burst
+          if (u.kind === 'hero' && u.s1Cd <= 0) {
+            u.s1Cd = 6.5;
+            addRingFx(tgt.x, tgt.y, 90, u.color);
+            damageUnit(tgt, u.atk * 1.4, u);
+          }
+        }
+      }
+
+      // Projectiles
+      for (let i = G.projs.length - 1; i >= 0; i--) {
+        const pr = G.projs[i];
+        pr.x += pr.vx * dt;
+        pr.y += pr.vy * dt;
+        pr.life -= dt;
+        if (pr.life <= 0 || pr.x < 0 || pr.x > G.w || pr.y < 0 || pr.y > G.h) {
+          G.projs.splice(i, 1);
+          continue;
+        }
+        let hitDone = false;
+        for (const u of G.units) {
+          if (!u.alive || pr.hitSet.has(u.id)) continue;
+          if (u.team === pr.team) continue;
+          if (Math.hypot(u.x - pr.x, u.y - pr.y) < u.r + pr.r) {
+            pr.hitSet.add(u.id);
+            damageUnit(u, pr.dmg, pr.attacker);
+            if (pr.stun) u.stunTimer = Math.max(u.stunTimer, pr.stun);
+            if (pr.slow) u.slowTimer = Math.max(u.slowTimer, pr.slow);
+            if (!pr.pierce) { hitDone = true; break; }
+          }
+        }
+        if (hitDone) G.projs.splice(i, 1);
+      }
+
+      // Particles, Rings, Floats
+      for (let i = G.particles.length - 1; i >= 0; i--) {
+        const pt = G.particles[i];
+        pt.x += pt.vx * dt; pt.y += pt.vy * dt;
+        pt.vx *= 0.92; pt.vy *= 0.92;
+        pt.life -= dt;
+        if (pt.life <= 0) G.particles.splice(i, 1);
+      }
+      for (let i = G.rings.length - 1; i >= 0; i--) {
+        const rg = G.rings[i];
+        rg.life -= dt;
+        rg.r = rg.maxR * (1 - rg.life / rg.maxLife);
+        if (rg.life <= 0) G.rings.splice(i, 1);
+      }
+      for (let i = G.floats.length - 1; i >= 0; i--) {
+        const fl = G.floats[i];
+        fl.y += fl.vy * dt;
+        fl.life -= dt;
+        if (fl.life <= 0) G.floats.splice(i, 1);
+      }
+
+      // Camera smoothly follows player
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const targetCamX = Math.max(0, Math.min(G.w - vw, p.x - vw / 2));
+      const targetCamY = Math.max(0, Math.min(G.h - vh, p.y - vh / 2));
+      G.camX += (targetCamX - G.camX) * Math.min(1, dt * 10);
+      G.camY += (targetCamY - G.camY) * Math.min(1, dt * 10);
+
+      // Update DOM HUD
+      updateHudDOM();
+    }
+
+    function updateHudDOM() {
+      const p = G.player;
+      document.getElementById('hudBlueScore').textContent = '🔵 ' + G.blueKills;
+      document.getElementById('hudRedScore').textContent = G.redKills + ' 🔴';
+      document.getElementById('hudGoldText').textContent = '🪙 ' + Math.floor(p.gold);
+      const mins = String(Math.floor(G.time / 60)).padStart(2, '0');
+      const secs = String(Math.floor(G.time % 60)).padStart(2, '0');
+      document.getElementById('hudTimerText').textContent = `${mins}:${secs}`;
+
+      document.getElementById('hudHeroName').textContent = `Lv.${p.lv} ${p.name}`;
+      document.getElementById('hudHpNum').textContent = `${Math.ceil(p.hp)}/${Math.ceil(p.maxHp)}`;
+      document.getElementById('hudHpFill').style.width = `${Math.max(0, (p.hp / p.maxHp) * 100)}%`;
+      document.getElementById('hudXpFill').style.width = `${Math.min(100, (p.xp / p.nextXp) * 100)}%`;
+
+      setCd('cdS1', p.s1Cd);
+      setCd('cdS2', p.s2Cd);
+      setCd('cdHeal', p.healCd);
+      const ultEl = document.getElementById('cdUlt');
+      if (p.lv < 4 && G.mode === 'arena') {
+        ultEl.textContent = 'Lv4';
+        ultEl.classList.add('show');
+      } else {
+        setCd('cdUlt', p.ultCd);
+      }
+
+      // Update Pro Radar Live Lock Strip
+      if (isPro() && G.radarOn) {
+        let nearest = null;
+        let minD = Infinity;
+        for (const u of G.units) {
+          if (!isEnemy(p, u)) continue;
+          if (u.kind !== 'hero' && u.kind !== 'boss') continue;
+          const d = Math.hypot(u.x - p.x, u.y - p.y);
+          if (d < minD) { minD = d; nearest = u; }
+        }
+        const strip = document.getElementById('radarHudStrip');
+        if (nearest) {
+          const meters = Math.max(1, Math.round(minD / 18));
+          const hpPct = Math.round((nearest.hp / nearest.maxHp) * 100);
+          strip.textContent = `📡 RADAR LOCK: ${nearest.icon} ${nearest.name} • ${meters}m • HP ${hpPct}%`;
+        } else {
+          strip.textContent = '📡 PRO RADAR: Area Clear • Scanning...';
+        }
+      }
+    }
+
+    function setCd(id, val) {
+      const el = document.getElementById(id);
+      if (val > 0.05) {
+        el.textContent = val.toFixed(1);
+        el.classList.add('show');
+      } else {
+        el.classList.remove('show');
+      }
+    }
+
+    /* ================================================================
+       60 FPS CANVAS RENDERER (Map + Units + Pro Enemy Distance Radar)
+       ================================================================ */
+    function renderGame() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      ctx.clearRect(0, 0, vw, vh);
+
+      const sx = G.shake > 0 ? (Math.random() - 0.5) * G.shake : 0;
+      const sy = G.shake > 0 ? (Math.random() - 0.5) * G.shake : 0;
+
+      ctx.save();
+      ctx.translate(-G.camX + sx, -G.camY + sy);
+
+      // Map Background
+      ctx.fillStyle = G.mode === 'openworld' ? '#0b1814' : '#0b1526';
+      ctx.fillRect(0, 0, G.w, G.h);
+
+      // Subtle Ground Tile Grid
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.06)';
+      ctx.lineWidth = 1;
+      const grid = 100;
+      const startX = Math.floor(G.camX / grid) * grid;
+      const startY = Math.floor(G.camY / grid) * grid;
+      for (let x = startX; x < G.camX + vw + grid; x += grid) {
+        ctx.beginPath(); ctx.moveTo(x, G.camY); ctx.lineTo(x, G.camY + vh); ctx.stroke();
+      }
+      for (let y = startY; y < G.camY + vh + grid; y += grid) {
+        ctx.beginPath(); ctx.moveTo(G.camX, y); ctx.lineTo(G.camX + vw, y); ctx.stroke();
+      }
+
+      if (G.mode === 'arena') {
+        // MOBA Lanes + Glowing River
+        ctx.fillStyle = '#152238';
+        ctx.fillRect(140, G.h / 2 - 140, G.w - 280, 280);
+        // River across center
+        ctx.fillStyle = 'rgba(14, 165, 233, 0.22)';
+        ctx.fillRect(G.w / 2 - 68, 0, 136, G.h);
+        // Blue & Red Base Circles
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+        ctx.beginPath(); ctx.arc(165, G.h / 2, 220, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.12)';
+        ctx.beginPath(); ctx.arc(G.w - 165, G.h / 2, 220, 0, Math.PI * 2); ctx.fill();
+      } else {
+        // Open World Biomes
+        for (const b of G.biomes) {
+          ctx.fillStyle = b.fill;
+          ctx.strokeStyle = b.stroke;
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#f8fafc';
+          ctx.font = 'bold 18px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(b.name, b.x, b.y - b.r + 34);
+        }
+        // Healing Fountain
+        if (G.fountain) {
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+          ctx.beginPath(); ctx.arc(G.fountain.x, G.fountain.y, G.fountain.r, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#34d399';
+          ctx.font = 'bold 13px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('💚 HEALING FOUNTAIN', G.fountain.x, G.fountain.y + 4);
+        }
+        // Treasure Chests
+        for (const ch of G.chests) {
+          if (ch.open) continue;
+          ctx.fillStyle = 'rgba(250, 204, 21, 0.22)';
+          ctx.beginPath(); ctx.arc(ch.x, ch.y, 26, 0, Math.PI * 2); ctx.fill();
+          ctx.font = '24px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('🧰', ch.x, ch.y);
+        }
+      }
+
+      // Stealth Bushes
+      for (const b of G.bushes) {
+        ctx.fillStyle = 'rgba(22, 163, 74, 0.28)';
+        ctx.strokeStyle = 'rgba(74, 222, 128, 0.45)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      }
+
+      // Expanding Skill Rings
+      for (const rg of G.rings) {
+        ctx.strokeStyle = rg.color;
+        ctx.globalAlpha = Math.max(0, rg.life / rg.maxLife);
+        ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.arc(rg.x, rg.y, rg.r, 0, Math.PI * 2); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+
+      // Units
+      for (const u of G.units) {
+        if (!u.alive) continue;
+        // Skip off-screen draw for speed
+        if (u.x < G.camX - 120 || u.x > G.camX + vw + 120 || u.y < G.camY - 120 || u.y > G.camY + vh + 120) continue;
+
+        // Turret Range Circle
+        if (u.kind === 'turret' || u.kind === 'nexus') {
+          ctx.strokeStyle = u.team === 'blue' ? 'rgba(56, 189, 248, 0.16)' : 'rgba(239, 68, 68, 0.2)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.arc(u.x, u.y, u.range, 0, Math.PI * 2); ctx.stroke();
+        }
+
+        // Player Golden Pro Aura / Range Ring
+        if (u.isPlayer) {
+          ctx.strokeStyle = isPro() ? 'rgba(250, 204, 21, 0.35)' : 'rgba(56, 189, 248, 0.22)';
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.arc(u.x, u.y, u.range, 0, Math.PI * 2); ctx.stroke();
+        }
+
+        // Shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
+        ctx.beginPath(); ctx.ellipse(u.x, u.y + u.r * 0.78, u.r * 0.9, u.r * 0.42, 0, 0, Math.PI * 2); ctx.fill();
+
+        // Body Circle
+        ctx.fillStyle = u.team === 'blue' ? '#1e3a8a' : (u.team === 'red' ? '#7f1d1d' : '#422006');
+        ctx.strokeStyle = u.isPlayer ? '#facc15' : u.color;
+        ctx.lineWidth = u.isPlayer ? 3.5 : 2.5;
+        ctx.beginPath(); ctx.arc(u.x, u.y, u.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+        // Shield Aura
+        if (u.shield > 0) {
+          ctx.strokeStyle = '#facc15';
+          ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.arc(u.x, u.y, u.r + 5, 0, Math.PI * 2); ctx.stroke();
+        }
+
+        // Icon
+        ctx.font = `${Math.round(u.r * 1.05)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(u.icon, u.x, u.y + 1);
+
+        // HP Bar above unit
+        const bw = Math.max(36, u.r * 2.1);
+        const bh = 6;
+        const bx = u.x - bw / 2;
+        const by = u.y - u.r - 14;
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+        ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
+        ctx.fillStyle = u.team === 'blue' ? '#10b981' : (u.team === 'red' ? '#ef4444' : '#facc15');
+        ctx.fillRect(bx, by, bw * Math.max(0, u.hp / u.maxHp), bh);
+
+        // Name / Pro Distance Tag on Screen
+        if (u.kind === 'hero' || u.kind === 'boss') {
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillStyle = '#f8fafc';
+          ctx.textAlign = 'center';
+          let lbl = u.name;
+          if (isPro() && G.radarOn && isEnemy(G.player, u)) {
+            const m = Math.max(1, Math.round(Math.hypot(u.x - G.player.x, u.y - G.player.y) / 18));
+            lbl = `${u.name} [${m}m]`;
+          }
+          ctx.fillText(lbl, u.x, by - 6);
+        }
+      }
+
+      // Projectiles
+      for (const pr of G.projs) {
+        ctx.fillStyle = pr.color;
+        ctx.shadowColor = pr.color;
+        ctx.shadowBlur = 10;
+        ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+
+      // Particles
+      for (const pt of G.particles) {
+        ctx.fillStyle = pt.color;
+        ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
+        ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // Floating Damage Numbers
+      for (const fl of G.floats) {
+        ctx.globalAlpha = Math.max(0, fl.life);
+        ctx.font = `900 ${fl.size}px sans-serif`;
+        ctx.fillStyle = fl.color;
+        ctx.textAlign = 'center';
+        ctx.fillText(fl.text, fl.x, fl.y);
+      }
+      ctx.globalAlpha = 1;
+
+      ctx.restore();
+
+      /* ==============================================================
+         SCREEN-SPACE OVERLAYS: PRO ENEMY DISTANCE RADAR + MINIMAP + JOYSTICK
+         ============================================================== */
+      // 1. PRO 360° OFF-SCREEN ENEMY DISTANCE ARROWS (Exact Meters!)
+      if (isPro() && G.radarOn && G.player) {
+        const p = G.player;
+        const pad = 42;
+        for (const u of G.units) {
+          if (!isEnemy(p, u)) continue;
+          if (u.kind !== 'hero' && u.kind !== 'boss') continue;
+          const sxPos = u.x - G.camX;
+          const syPos = u.y - G.camY;
+          const onScreen = sxPos > 20 && sxPos < vw - 20 && syPos > 20 && syPos < vh - 20;
+          if (onScreen) continue;
+
+          const ang = Math.atan2(u.y - p.y, u.x - p.x);
+          const meters = Math.max(1, Math.round(Math.hypot(u.x - p.x, u.y - p.y) / 18));
+
+          // Clamp arrow to screen edge ellipse/box
+          const cx = vw / 2, cy = vh / 2;
+          const cos = Math.cos(ang), sin = Math.sin(ang);
+          const tx = cos !== 0 ? ((cos > 0 ? vw - pad : pad) - cx) / cos : 9999;
+          const ty = sin !== 0 ? ((sin > 0 ? vh - pad : pad) - cy) / sin : 9999;
+          const t = Math.min(Math.abs(tx), Math.abs(ty));
+          const ix = cx + cos * t;
+          const iy = cy + sin * t;
+
+          ctx.save();
+          ctx.translate(ix, iy);
+          // Glowing Pill Badge
+          ctx.fillStyle = u.kind === 'boss' ? 'rgba(245, 158, 11, 0.92)' : 'rgba(220, 38, 38, 0.9)';
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(0, 0, 22, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Directional Triangle Tip
+          ctx.rotate(ang);
+          ctx.fillStyle = '#facc15';
+          ctx.beginPath();
+          ctx.moveTo(29, 0);
+          ctx.lineTo(19, -6);
+          ctx.lineTo(19, 6);
+          ctx.closePath();
+          ctx.fill();
+          ctx.rotate(-ang);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 10.5px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(u.kind === 'boss' ? '🐉' : '🎯', 0, -6);
+          ctx.fillText(meters + 'm', 0, 8);
+          ctx.restore();
+        }
+      }
+
+      // 2. MINIMAP (Top-Left below Score Pill — with Pro Pulsing Radar Sweep!)
+      const mmW = vw < 520 ? 104 : 132;
+      const mmH = Math.round(mmW * (G.h / G.w));
+      const mmX = 10;
+      const mmY = G.mode === 'openworld' ? (vh - mmH - 12) : 50;
+
+      ctx.fillStyle = 'rgba(6, 11, 24, 0.82)';
+      ctx.strokeStyle = (isPro() && G.radarOn) ? '#38bdf8' : 'rgba(148, 163, 184, 0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.fillRect(mmX, mmY, mmW, mmH);
+      ctx.strokeRect(mmX, mmY, mmW, mmH);
+
+      // Pro Radar Sweep Line on Minimap
+      if (isPro() && G.radarOn) {
+        const rx = mmX + (G.player.x / G.w) * mmW;
+        const ry = mmY + (G.player.y / G.h) * mmH;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(mmX, mmY, mmW, mmH);
+        ctx.clip();
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(rx, ry);
+        ctx.lineTo(rx + Math.cos(G.radarAngle) * mmW, ry + Math.sin(G.radarAngle) * mmW);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Minimap Dots
+      for (const u of G.units) {
+        if (!u.alive) continue;
+        // Free users cannot see far-away enemy heroes on minimap
+        if (!isPro() && isEnemy(G.player, u) && u.kind === 'hero') {
+          if (Math.hypot(u.x - G.player.x, u.y - G.player.y) > 460) continue;
+        }
+        const mx = mmX + (u.x / G.w) * mmW;
+        const my = mmY + (u.y / G.h) * mmH;
+        ctx.fillStyle = u.isPlayer ? '#facc15' : (u.kind === 'boss' ? '#f97316' : (u.team === 'blue' ? '#38bdf8' : '#ef4444'));
+        ctx.beginPath();
+        ctx.arc(mx, my, u.isPlayer || u.kind === 'boss' || u.kind === 'nexus' ? 3.5 : 2.1, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 3. VIRTUAL ANALOG JOYSTICK
+      if (joy.active) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(joy.sx, joy.sy, 54, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
+        ctx.beginPath(); ctx.arc(joy.cx, joy.cy, 22, 0, Math.PI * 2); ctx.fill();
+      } else {
+        // Subtle idle hint ring bottom-left
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(78, vh - 86, 44, 0, Math.PI * 2); ctx.stroke();
+      }
+    }
+
+    function gameLoop(now) {
+      if (!gameRunning) return;
+      const dt = Math.min(0.05, (now - lastTime) / 1000);
+      lastTime = now;
+      updateGame(dt);
+      renderGame();
+      rafId = requestAnimationFrame(gameLoop);
+    }
+
+    function stopMatchToLobby() {
+      gameRunning = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      cleanupMultiplayer();
+      document.getElementById('gameScreen').classList.remove('active');
+      document.getElementById('shopModal').classList.remove('show');
+      document.getElementById('resultModal').classList.remove('show');
+      document.getElementById('lobbyScreen').style.display = 'block';
+      renderLobby();
+    }
+
+    function endMatch(won) {
+      gameRunning = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      playSfx(won ? 'levelup' : 'hit');
+
+      const reward = won ? G.stage.reward : Math.round(G.stage.reward * 0.35);
+      const xpGain = won ? 140 : 50;
+      save.coins += reward;
+      save.xp += xpGain;
+      while (save.xp >= save.level * 160) {
+        save.xp -= save.level * 160;
+        save.level++;
+      }
+      if (won) {
+        save.wins++;
+        const stars = G.redKills === 0 ? 3 : (G.blueKills >= G.redKills ? 2 : 1);
+        save.stageStars[G.stage.id] = Math.max(save.stageStars[G.stage.id] || 0, stars);
+        if (G.stage.id >= save.maxStage && save.maxStage < 10) {
+          save.maxStage = G.stage.id + 1;
+        }
+      }
+      persistSave();
+
+      document.getElementById('resultIcon').textContent = won ? '🏆🔥' : '💀';
+      document.getElementById('resultTitle').textContent = won ? 'VICTORY! JEET GAYE!' : 'DEFEAT! DOBARA KOSHISH KAREIN';
+      document.getElementById('resultStats').textContent = `Score: 🔵 ${G.blueKills} - ${G.redKills} 🔴 • Reward: +${reward} Coins • +${xpGain} XP`;
+      document.getElementById('resultModal').classList.add('show');
+    }
+
+    // Lobby & Match Buttons
+    document.getElementById('startArenaBtn').addEventListener('click', () => startMatch('arena', save.selectedStage, false));
+    document.getElementById('modeArenaCard').addEventListener('click', () => startMatch('arena', save.selectedStage, false));
+    document.getElementById('playOpenWorldBtn').addEventListener('click', () => startMatch('openworld', 1, false));
+    document.getElementById('exitMatchBtn').addEventListener('click', stopMatchToLobby);
+    document.getElementById('resultLobbyBtn').addEventListener('click', stopMatchToLobby);
+    document.getElementById('resultNextBtn').addEventListener('click', () => {
+      const nextSt = Math.min(10, save.selectedStage + 1);
+      const stObj = STAGES.find(s => s.id === nextSt);
+      if (stObj && (!stObj.pro || isPro()) && nextSt <= save.maxStage) {
+        save.selectedStage = nextSt;
+        persistSave();
+      }
+      startMatch('arena', save.selectedStage, false);
+    });
+
+    document.getElementById('fullscreenBtn').addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.().catch(() => {});
+      } else {
+        document.exitFullscreen?.().catch(() => {});
+      }
+    });
+
+    // PWA Service Worker & Install Prompt
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('installBar').classList.add('show');
+    });
+
+    document.getElementById('installPwaBtn').addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const ch = await deferredPrompt.userChoice;
+      if (ch.outcome === 'accepted') {
+        document.getElementById('installBar').classList.remove('show');
+        showToast('Legend Arena install ho raha hai 🎮');
+      }
+      deferredPrompt = null;
+    });
+
+    renderLobby();
+  })();
+  </script>
+</body>
+</html>
